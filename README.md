@@ -3,6 +3,11 @@ Introduction
 
 This program summarises the resultant DNA methylation pattern data from the output of [Bismark](http://www.bioinformatics.babraham.ac.uk/projects/bismark/) bismark_methylation_extractor. Information of the DNA methylation positions for each amplicon, DNA methylation patterns observed within each amplicon and their abundance counts are summarised into a tab delimited text file amenable for further downstream statistical analysis and visualization.
 
+License
+-------
+
+Methpat is released as open source software under the terms of the 3 clause BSD License. See the file LICENCE.txt in the [source code repository of methpat](https://github.com/bjpop/methpat).
+
 Installation
 ------------
 
