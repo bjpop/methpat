@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>Methylation patterns</title>
+<style>
+
+@import url(style.css);
+
+.background {
+  fill: #eee;
+}
+
+line {
+  stroke: #fff;
+  stroke-opacity: .5;
+  shape-rendering: crispEdges;
+}
+
+textarea {
+  padding: 2px;
+  width: 714px;
+  height: 360px;
+}
+
+</style>
+
+<h1>Methylation Patterns</h1>
+
+<script src="d3.v3.min.js"></script>
+<script>
+
+// check if something is a number:
+// isNumeric(3.2) --> true
+// isNumeric("12") --> true
+// isNumeric("fred") --> false
+function isNumeric(num){
+    return !isNaN(num)
+}
+
+
+function create_matrix(data) {
+
+   var margin = {top: 0, right: 0, bottom: 0, left: 0};
+
+   var num_rows = data.length;
+
+   // Get an array of numeric column names (the methylation positions)
+   // and an array of all the magnitudes
+   if (num_rows > 0)
+   {
+      var first_row = data[0];
+      var key_map = d3.map(first_row);
+      var numeric_keys = key_map.keys().filter(isNumeric);
+      var num_columns = numeric_keys.length;
+
+      var magnitudes = [];
+      for (i = 0; i < num_rows; i++)
+      {
+          magnitudes.push(parseInt(data[i].Mag));
+      }
+      magnitudes = magnitudes.sort(function(a, b){return a - b});
+      var max_mag = magnitudes[num_rows - 1];
+      var min_mag = magnitudes[0];
+   }
+   else
+   {
+      return;
+   }
+
+   var cell_width = 20;
+   var cell_height = cell_width;
+   var width = num_columns * cell_width;
+
+   var x = d3.scale.ordinal()
+           .domain(d3.range(num_columns))
+           .rangeBands([0, width]);
+
+   var mag = d3.scale.log()
+             .domain([min_mag, max_mag])
+             .range([0.2, 0.7]);
+
+   var height = num_rows * x.rangeBand();
+
+   var svg = d3.select("body").append("svg")
+      //.attr("width", width + margin.left + margin.right)
+      .attr("height", width + margin.left + margin.right)
+      //.attr("height", height + margin.top + margin.bottom)
+      .attr("width", height + margin.top + margin.bottom)
+      //.style("margin-left", -margin.left + "px")
+      // g is an SVG group
+      .append("g")
+      .attr("transform", "translate(0," + width + ")")
+      .append("g")
+      .attr("transform", "rotate(-90,0,0)");
+    
+   svg.append("rect")
+      .attr("class", "background")
+      .attr("width", width)
+      .attr("height", height);
+
+   var row = svg.selectAll(".row")
+       .data(data)
+       .enter().append("g")
+       .attr("class", "row")
+       .attr("opacity", 0.9)
+       // translate the row in the y direction (shift it down the page)
+       .attr("transform", function(d, i) { return "translate(0," + i * cell_height + ")"; })
+       .attr("row_num", function(d, i) { return i; })
+   
+   row.selectAll(".cell")
+       .data(function(d) {
+           values = []
+           for (i = 0; i < num_columns; i++)
+           {
+               var cell_val = { meth_state : d[numeric_keys[i]], count : d.Mag }
+               values.push(cell_val);
+           }
+           return values;
+       })
+       .enter().append("rect")
+       .attr("class", "cell")
+       .attr("x", function(d, i) { return x(i); })
+       .attr("width", x.rangeBand())
+       .attr("height", x.rangeBand())
+       .attr("stroke-width", 0.5)
+       .attr("stroke", 'black')
+       .attr("fill", function(d, i) {
+
+           function make_colour(name, count) {
+              var colour = d3.hsl(name);
+              colour.l = mag(count);
+              return colour;
+           }
+    
+           var meth_state = d.meth_state;
+
+           if (meth_state == 'False') {
+              return make_colour('red', d.count);
+           }
+           else if (meth_state == 'True') {
+              return make_colour('yellow', d.count);
+           } 
+           else if (meth_state == 'Missing') {
+              return make_colour('blue', d.count);
+           };
+        })
+}
+
+
+d3.csv("example.csv", function(d) {
+   create_matrix(d);
+   
+});
+
+</script>
