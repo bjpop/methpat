@@ -28,38 +28,44 @@ textarea {
 <script src="d3.v3.min.js"></script>
 <script>
 
-// check if something is a number:
-// isNumeric(3.2) --> true
-// isNumeric("12") --> true
-// isNumeric("fred") --> false
-function isNumeric(num){
-    return !isNaN(num)
-}
 
+/*
+dataset = { amplicon : 'APC_138',
+            chr: 'chr5',
+	    start: 112073470,
+	    end: 112073570,
+	    patterns :  [{ count: 1,
+		          methylation: [0,0,0,0,0,0,0,0,0,0,0]
+		        },
+			{ count: 10,
+			  methylation: [0,0,0,0,0,0,0,0,0,0,1]
+			}]
+	  };
+*/
 
 function create_matrix(data) {
 
    var margin = {top: 0, right: 0, bottom: 0, left: 0};
+   var patterns = data.patterns;
+   var num_rows = patterns.length;
 
-   var num_rows = data.length;
+   var heading = d3.select("body").append("h3");
+   heading.text(data.amplicon + ' ' + data.chr + ' ' + data.start + ':' + data.end)
 
-   // Get an array of numeric column names (the methylation positions)
-   // and an array of all the magnitudes
+   // Get an array of all the magnitudes, and the min and max magnitude
    if (num_rows > 0)
    {
-      var first_row = data[0];
-      var key_map = d3.map(first_row);
-      var numeric_keys = key_map.keys().filter(isNumeric);
-      var num_columns = numeric_keys.length;
+      var num_columns = patterns[0].methylation.length
 
       var magnitudes = [];
       for (i = 0; i < num_rows; i++)
       {
-          magnitudes.push(parseInt(data[i].Mag));
+          magnitudes.push(patterns[i].count);
       }
       magnitudes = magnitudes.sort(function(a, b){return a - b});
       var max_mag = magnitudes[num_rows - 1];
       var min_mag = magnitudes[0];
+
    }
    else
    {
@@ -81,11 +87,8 @@ function create_matrix(data) {
    var height = num_rows * x.rangeBand();
 
    var svg = d3.select("body").append("svg")
-      //.attr("width", width + margin.left + margin.right)
       .attr("height", width + margin.left + margin.right)
-      //.attr("height", height + margin.top + margin.bottom)
       .attr("width", height + margin.top + margin.bottom)
-      //.style("margin-left", -margin.left + "px")
       // g is an SVG group
       .append("g")
       .attr("transform", "translate(0," + width + ")")
@@ -98,7 +101,7 @@ function create_matrix(data) {
       .attr("height", height);
 
    var row = svg.selectAll(".row")
-       .data(data)
+       .data(patterns)
        .enter().append("g")
        .attr("class", "row")
        .attr("opacity", 0.9)
@@ -111,7 +114,7 @@ function create_matrix(data) {
            values = []
            for (i = 0; i < num_columns; i++)
            {
-               var cell_val = { meth_state : d[numeric_keys[i]], count : d.Mag }
+               var cell_val = { meth_state : d.methylation[i], count : d.count }
                values.push(cell_val);
            }
            return values;
@@ -133,22 +136,28 @@ function create_matrix(data) {
     
            var meth_state = d.meth_state;
 
-           if (meth_state == 'False') {
+           if (meth_state == 0) {
               return make_colour('red', d.count);
            }
-           else if (meth_state == 'True') {
+           else if (meth_state == 1) {
               return make_colour('yellow', d.count);
            } 
-           else if (meth_state == 'Missing') {
+           else if (meth_state == 2) {
               return make_colour('blue', d.count);
            };
         })
 }
 
-
-d3.csv("example.csv", function(d) {
-   create_matrix(d);
-   
-});
+create_matrix({ amplicon : 'APC_138',
+            chr: 'chr5',
+	    start: 112073470,
+	    end: 112073570,
+	    patterns : [{ count: 1,
+		          methylation: [0,1,0,1,0,0,0,0,0,0,0]
+		        },
+			{ count: 10,
+			  methylation: [0,2,2,0,0,0,0,0,0,0,1]
+			}]
+	  });
 
 </script>
