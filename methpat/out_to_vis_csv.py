@@ -17,7 +17,11 @@ def make_header(num_methyl_sites):
     return 'Amplicon,Chr,Start,End,{},Mag'.format(methyl_headers)
     
 in_file = open(sys.argv[1])
-next(in_file)
+
+try:
+    next(in_file)
+except StopIteration as e:
+    exit()
 
 def get_amplicon_name(line):
     return line.split()[0]

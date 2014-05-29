@@ -38,9 +38,7 @@ def pretty_state(unique_sites, cpg_sites):
     result = ''
     while unique_index < len(unique_sites):
         if cpg_index < len(cpg_sites):
-            #if unique_sites[unique_index] == cpg_sites[cpg_index][0]:
             if unique_sites[unique_index] == cpg_sites[cpg_index].pos:
-                #result += str(cpg_sites[cpg_index][1])
                 result += str(cpg_sites[cpg_index].methyl_state)
                 unique_index += 1
                 cpg_index += 1
@@ -208,8 +206,6 @@ def main():
         # compute the set of unique CPG sites for this amplicon
         unique_sites = set()
         for cpg_sites in methyl_state_counts[amplicon].keys():
-            #print(cpg_sites)
-            #unique_sites.update([site[0] for site in cpg_sites])
             unique_sites.update([site.pos for site in cpg_sites])
         # sort the unique CPG sites into ascending order of position
         unique_sites = sorted(unique_sites)
