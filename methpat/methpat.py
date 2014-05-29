@@ -5,6 +5,7 @@
 import sys
 from argparse import ArgumentParser
 import logging
+from visualise import make_html
 
 def parseArgs():
     parser = ArgumentParser(
@@ -23,6 +24,8 @@ def parseArgs():
         help='Only display methylation patterns with at least THRESH number of matching reads')
     parser.add_argument('--logfile', metavar='FILENAME', type=str, required=True,
         help='log progress in FILENAME')
+    parser.add_argument('--html', metavar='FILENAME', type=str, required=True,
+        help='save visualisation in html FILENAME')
     return parser.parse_args()
 
 def encode_methyl(char):
@@ -220,9 +223,29 @@ def main():
 
     print('\t'.join(["<amplicon ID>", "<chr>", "<Base position start/CpG start>",
           "<Base position end/CpG end>", "<Methylation pattern>", "<count>", "<raw cpg sites>"]))
+
+    json_dict = {}
  
     for amplicon, chr, start, end, binary, count, binary_raw in sorted(result):
         print('\t'.join([amplicon, chr, str(start), str(end), binary, str(count), binary_raw]))
+        pattern_dict = { 'count': count, 'methylation': to_json_pattern(binary) }
+        if amplicon in json_dict:
+            amplicon_dict = json_dict[amplicon]
+            amplicon_dict['patterns'].append(pattern_dict)
+        else:
+            amplicon_dict = { 'amplicon': amplicon
+                            , 'chr': chr
+                            , 'start': start
+                            , 'end': end
+                            , 'patterns': [pattern_dict] }
+            json_dict[amplicon] = amplicon_dict
+
+    make_html(args, json_dict)
+
+
+def to_json_pattern(binary):
+    char_to_int = { '0': 0, '1': 1, '-': 2 }
+    return [ char_to_int[c] for c in binary ]
 
 if __name__ == '__main__':
     main()
