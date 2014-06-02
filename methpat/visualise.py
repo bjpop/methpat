@@ -35,12 +35,49 @@ textarea {
   height: 360px;
 }
 
+.axis path,
+.axis line {
+    fill: none;
+    stroke: black;
+    shape-rendering: crispEdges;
+}
+
+.axis text {
+    font-family: sans-serif;
+    font-size: 11px;
+}
+
 </style>
 
 <h1>Methylation Patterns</h1>
 
-<script src="d3.v3.min.js"></script>
+<p>
+   histogram:
+   <select id="scaling">
+      <option value="log">log</option>
+      <option value="linear">linear</option>
+   </select>
+</p>
+
+<script type="text/javascript" src="d3.v3.min.js"></script>
+<script type="text/javascript" src="jquery-1.6.4.min.js"></script>
 <script>
+
+var scaling = 'log';
+
+$('#scaling').change(function () {
+   if (scaling == 'log')
+   {
+      scaling = 'linear';
+      draw_graphs();
+   }
+   else if (scaling == 'linear')
+   {
+      scaling = 'log';
+      draw_graphs();
+   }
+});
+
 
 function create_matrix(data) {
 
@@ -52,9 +89,11 @@ function create_matrix(data) {
 
    var num_sites = patterns[0].methylation.length
 
-   var margin = {top: 0, right: 0, bottom: 0, left: 0};
+   var margin = {top: 0, right: 50, bottom: 10, left: 50};
 
-   var heading = d3.select("body").append("h3");
+   var all_graphs = d3.select("body").select("#all_graphs");
+
+   var heading = all_graphs.append("h3");
    heading.text(data.amplicon + ' ' + data.chr + ' ' + data.start + ':' + data.end)
 
    // Compute the maximum, minimum and total counts for all the data.
@@ -81,29 +120,56 @@ function create_matrix(data) {
    var width = num_sites * cell_width;
 
    var patterns_height = num_sites * cell_height;
-   var counts_height = 50;
-   var gap = 10;
+   var counts_height = 100;
+   var horizontal_gap = 10;
+   var vertical_gap = 3;
 
-   var img_width = num_patterns * cell_width;
-   var img_height = patterns_height + gap + counts_height;
+   var img_width = num_patterns * cell_width + margin.left + margin.right + vertical_gap;
+   var img_height = patterns_height + horizontal_gap + counts_height + margin.top + margin.bottom;
 
    var cell_y = d3.scale.ordinal()
-           .domain(d3.range(num_sites))
-           .rangeBands([0, patterns_height]);
+      .domain(d3.range(num_sites))
+      .rangeBands([0, patterns_height]);
 
-   var mag_scale = d3.scale.log()
-         .domain([min_count, max_count])
-         .range([0.2, 0.7]);
+   if (scaling == 'linear') 
+   {
+      var mag_scale = d3.scale.linear()
+            .domain([min_count, max_count])
+            .range([0.2, 0.7]);
+   
+      var count_bar_scale = d3.scale.linear()
+            .domain([min_count, max_count])
+            .range([1, counts_height]);
+   }
+   else if (scaling == 'log')
+   {
+      var mag_scale = d3.scale.log()
+            .domain([min_count, max_count])
+            .range([0.2, 0.7]);
+   
+      var count_bar_scale = d3.scale.log()
+            .domain([min_count, max_count])
+            .range([1, counts_height]);
+   }
 
-   var count_bar_scale = d3.scale.log()
-         .domain([min_proportion, max_proportion])
-         .range([1, counts_height]);
-
-   var patterns_svg = d3.select("body").append("svg")
+   //var patterns_svg = d3.select("body").append("svg")
+   var patterns_svg = all_graphs.append("svg")
       .attr("height", img_height)
-      .attr("width", img_width);
+      .attr("width", img_width)
 
-   var columns = patterns_svg.selectAll(".column")
+   var image_group = patterns_svg.append("g")
+      .attr("transform", "translate(" + (margin.left) + "," + 0 + ")");
+
+   var histo_y_axis = d3.svg.axis()
+      .scale(count_bar_scale)
+      .orient("left")
+      .ticks(5);
+
+   var patterns_group = image_group.append("g")
+      .attr("class", "patterns")
+      .attr("transform", "translate(" + vertical_gap + "," + 0 + ")");
+
+   var columns = patterns_group.selectAll(".column")
        .data(patterns)
        .enter().append("g")
        .attr("class", "column")
@@ -149,19 +215,43 @@ function create_matrix(data) {
            };
         })
 
-    var count_bars = patterns_svg.selectAll(".count_bar")
+    var histogram = image_group.append("g")
+      .attr("class", "histogram");
+
+    var histogram_bars = histogram.append("g")
+      .attr("class", "histogram_bars")
+      .attr("transform", "translate(" + vertical_gap + "," + 0 + ")");
+
+    var count_bars = histogram_bars.selectAll(".count_bar")
        .data(patterns)
        .enter().append("rect")
        .attr("class", "count_bar")
        .attr("transform", function(d, i)
-           { return "translate(" + i * cell_width + "," + (patterns_height + gap) + ")"; })
+           { return "translate(" + (i * cell_width) + "," + (patterns_height + horizontal_gap) + ")"; })
        .attr("class", "cell")
        .attr("width", cell_width)
-       .attr("height", function(d, i) { return count_bar_scale(d.count/ total_count); })
+       //.attr("height", function(d, i) { return count_bar_scale(d.count / total_count); })
+       .attr("height", function(d, i) { return count_bar_scale(d.count); })
        .attr("fill", 'green');
+
+    histogram.append("g").
+        attr("class", "axis").
+        attr("transform", "translate(" + 0 + "," + (patterns_height + horizontal_gap) + ")").
+        call(histo_y_axis)
 }
 
-%s
+function draw_graphs() {
+
+   d3.select("body").select("#all_graphs").remove();
+
+   var all_graphs = d3.select("body")
+      .append("div")
+      .attr("id", "all_graphs");
+
+   %s
+}
+
+draw_graphs();
 
 </script>
 '''
