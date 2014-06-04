@@ -52,6 +52,20 @@ textarea {
 <h1>Methylation Patterns</h1>
 
 <p>
+   pattern sort by:
+   <select id="pattern_sort_by">
+      <option value="frequency">epiallele frequency</option>
+      <option value="methylation">degree of methylation</option>
+   </select>
+</p>
+<p>
+   pattern sort direction:
+   <select id="pattern_sort_direction">
+      <option value="descending">descending</option>
+      <option value="ascending">ascending</option>
+   </select>
+</p>
+<p>
    histogram scaling:
    <select id="scaling">
       <option value="log">log</option>
@@ -72,6 +86,67 @@ $('#redraw').click(function () {
    draw_graphs();
 });
 
+/*
+   We encode methylated: 1
+             unmethylated: 0
+             unknown: 2
+
+
+   We use this sum for sorting, so we just sum
+   the 1s, and not the 0s or 2s.
+*/
+function sum_methylation(a) {
+   var result = 0;
+   for(var i = 0; i < a.length; i++){
+      if (a[i] == 1) {
+         result++;
+      }
+   }
+   return result;
+}
+
+function order_pattern(m1, m2, order_by, direction) {
+   switch(order_by){
+      case "frequency":
+         var delta = order_pattern_by_frequency(m1, m2);
+         break;
+      case "methylation":
+         var delta = order_pattern_by_methylation(m1, m2);
+         break;
+   }
+
+   switch(direction) {
+      case "ascending":
+         return delta;
+         break;
+      case "descending":
+         return -delta;
+         break;
+      default:
+         return delta;
+         break;
+   }
+}
+
+function order_pattern_by_frequency(m1, m2) {
+   return m1.count - m2.count;
+}
+
+function order_pattern_by_methylation(m1, m2) {
+   var sum1 = sum_methylation(m1.methylation);
+   var sum2 = sum_methylation(m2.methylation);
+
+   var delta = sum1 - sum2;
+
+   // If they have the same number of 1s, then sort
+   // by their frequency.
+   if (delta == 0) {
+      delta = m1.count - m2.count;
+   }
+
+   return delta;
+}
+
 function create_matrix(data) {
 
    var scaling = $('#scaling').val();
@@ -81,6 +156,11 @@ function create_matrix(data) {
 
    if (num_patterns == 0)
       return;
+
+   var pattern_sort_by = $('#pattern_sort_by').val();
+   var pattern_sort_direction = $('#pattern_sort_direction').val();
+
+   patterns.sort(function(a, b) { return order_pattern(a, b, pattern_sort_by, pattern_sort_direction); });
 
    var num_sites = patterns[0].methylation.length
 
