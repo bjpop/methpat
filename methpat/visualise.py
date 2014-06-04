@@ -67,9 +67,16 @@ textarea {
 </p>
 <p>
    histogram scaling:
-   <select id="scaling">
+   <select id="histogram_scaling">
       <option value="log">log</option>
       <option value="linear">linear</option>
+   </select>
+</p>
+<p>
+   histogram units:
+   <select id="histogram_units">
+      <option value="percent">percent</option>
+      <option value="absolute">absolute</option>
    </select>
 </p>
 <p>
@@ -90,7 +97,6 @@ $('#redraw').click(function () {
    We encode methylated: 1
              unmethylated: 0
              unknown: 2
-
 
    We use this sum for sorting, so we just sum
    the 1s, and not the 0s or 2s.
@@ -147,9 +153,18 @@ function order_pattern_by_methylation(m1, m2) {
    return delta;
 }
 
-function create_matrix(data) {
+function scale_count(count, total_count, units) {
+   switch(units){
+      case "percent":
+         return count / total_count * 100;
+         break;
+      case "absolute":
+         return count;
+         break;
+   }
+}
 
-   var scaling = $('#scaling').val();
+function create_matrix(data) {
 
    var patterns = data.patterns;
    var num_patterns = patterns.length;
@@ -157,6 +172,8 @@ function create_matrix(data) {
    if (num_patterns == 0)
       return;
 
+   var histogram_scaling = $('#histogram_scaling').val();
+   var histogram_units = $('#histogram_units').val();
    var pattern_sort_by = $('#pattern_sort_by').val();
    var pattern_sort_direction = $('#pattern_sort_direction').val();
 
@@ -203,11 +220,20 @@ function create_matrix(data) {
       .domain(d3.range(num_sites))
       .rangeBands([0, patterns_height]);
 
-   var count_domain = [1, max_count];
+   switch(histogram_units) {
+      case 'percent':
+         // we use 0.0001 as the lower bound because the log scale does not support 0
+         var scale_domain = [0.0001, 100];
+         break;
+      case 'absolute':
+         var scale_domain = [1, max_count];
+         break;
+   } 
+
    var mag_range = [0.2, 0.7];
    var histo_range = [1, counts_height];
 
-   switch(scaling) {
+   switch(histogram_scaling) {
       case 'linear':
          var mag_scaler = d3.scale.linear();
          var histo_scaler = d3.scale.linear();
@@ -218,8 +244,8 @@ function create_matrix(data) {
          break
    }
 
-   var mag_scale = mag_scaler.domain(count_domain).range(mag_range);
-   var histo_scale = histo_scaler.domain(count_domain).range(histo_range);
+   var mag_scale = mag_scaler.domain(scale_domain).range(mag_range);
+   var histo_scale = histo_scaler.domain(scale_domain).range(histo_range);
 
    var patterns_svg = all_graphs.append("svg")
       .attr("height", img_height)
@@ -266,7 +292,7 @@ function create_matrix(data) {
 
            function make_colour(name, count) {
               var colour = d3.hsl(name);
-              colour.l = mag_scale(count);
+              colour.l = mag_scale(scale_count(count, total_count, histogram_units));
               return colour;
            }
 
@@ -298,7 +324,7 @@ function create_matrix(data) {
            { return "translate(" + (i * cell_width) + "," + (patterns_height + horizontal_gap) + ")"; })
        .attr("class", "cell")
        .attr("width", cell_width)
-       .attr("height", function(d, i) { return histo_scale(d.count); })
+       .attr("height", function(d, i) { return histo_scale(scale_count(d.count, total_count, histogram_units)); })
        .attr("fill", 'green');
 
     histogram.append("g").
