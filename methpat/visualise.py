@@ -52,11 +52,14 @@ textarea {
 <h1>Methylation Patterns</h1>
 
 <p>
-   histogram:
+   histogram scaling:
    <select id="scaling">
       <option value="log">log</option>
       <option value="linear">linear</option>
    </select>
+</p>
+<p>
+<input id="redraw" type="button" value="redraw">
 </p>
 
 <script type="text/javascript" src="d3.v3.min.js"></script>
@@ -65,21 +68,13 @@ textarea {
 
 var scaling = 'log';
 
-$('#scaling').change(function () {
-   if (scaling == 'log')
-   {
-      scaling = 'linear';
-      draw_graphs();
-   }
-   else if (scaling == 'linear')
-   {
-      scaling = 'log';
-      draw_graphs();
-   }
+$('#redraw').click(function () {
+   draw_graphs();
 });
 
-
 function create_matrix(data) {
+
+   var scaling = $('#scaling').val();
 
    var patterns = data.patterns;
    var num_patterns = patterns.length;
@@ -112,9 +107,6 @@ function create_matrix(data) {
       }
    } 
 
-   var max_proportion = max_count / total_count;
-   var min_proportion = min_count / total_count;
-
    var cell_width = 10;
    var cell_height = cell_width;
    var width = num_sites * cell_width;
@@ -131,28 +123,24 @@ function create_matrix(data) {
       .domain(d3.range(num_sites))
       .rangeBands([0, patterns_height]);
 
-   if (scaling == 'linear') 
-   {
-      var mag_scale = d3.scale.linear()
-            .domain([min_count, max_count])
-            .range([0.2, 0.7]);
-   
-      var count_bar_scale = d3.scale.linear()
-            .domain([min_count, max_count])
-            .range([1, counts_height]);
-   }
-   else if (scaling == 'log')
-   {
-      var mag_scale = d3.scale.log()
-            .domain([min_count, max_count])
-            .range([0.2, 0.7]);
-   
-      var count_bar_scale = d3.scale.log()
-            .domain([min_count, max_count])
-            .range([1, counts_height]);
+   var count_domain = [1, max_count];
+   var mag_range = [0.2, 0.7];
+   var histo_range = [1, counts_height];
+
+   switch(scaling) {
+      case 'linear':
+         var mag_scaler = d3.scale.linear();
+         var histo_scaler = d3.scale.linear();
+         break
+      case 'log':
+         var mag_scaler = d3.scale.log();
+         var histo_scaler = d3.scale.log();
+         break
    }
 
-   //var patterns_svg = d3.select("body").append("svg")
+   var mag_scale = mag_scaler.domain(count_domain).range(mag_range);
+   var histo_scale = histo_scaler.domain(count_domain).range(histo_range);
+
    var patterns_svg = all_graphs.append("svg")
       .attr("height", img_height)
       .attr("width", img_width)
@@ -161,7 +149,7 @@ function create_matrix(data) {
       .attr("transform", "translate(" + (margin.left) + "," + 0 + ")");
 
    var histo_y_axis = d3.svg.axis()
-      .scale(count_bar_scale)
+      .scale(histo_scale)
       .orient("left")
       .ticks(5);
 
@@ -230,8 +218,7 @@ function create_matrix(data) {
            { return "translate(" + (i * cell_width) + "," + (patterns_height + horizontal_gap) + ")"; })
        .attr("class", "cell")
        .attr("width", cell_width)
-       //.attr("height", function(d, i) { return count_bar_scale(d.count / total_count); })
-       .attr("height", function(d, i) { return count_bar_scale(d.count); })
+       .attr("height", function(d, i) { return histo_scale(d.count); })
        .attr("fill", 'green');
 
     histogram.append("g").
