@@ -147,12 +147,18 @@ def main():
     # mapping from chr name to list of amplicons
     # each amplicon is represented as (start, end, name)
     # We assume the amplicons are not overlapping.
+
+    # keep a record of the amplicon names in the order that they appeared
+    # in the input file, so we can render them in the same order in 
+    # the visualisation.
+    amplicon_names = []
     amplicons = {}
     with open(args.amplicons) as file:
         for line in file:
             parts = line.split()
             chr, start, end, name, size, trim_start, trim_end = parts[:7]
             amplicon = Amplicon(int(start), int(end), int(trim_start), int(trim_end), name)
+            amplicon_names.append(name)
             if chr in amplicons:
                 amplicons[chr].append(amplicon)
             else:
@@ -240,7 +246,7 @@ def main():
                             , 'patterns': [pattern_dict] }
             json_dict[amplicon] = amplicon_dict
 
-    make_html(args, json_dict)
+    make_html(args, amplicon_names, json_dict)
 
 
 def to_json_pattern(binary):

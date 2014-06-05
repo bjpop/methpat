@@ -1,8 +1,15 @@
 import json
+import logging
 
-def make_html(args, json_dict):
+def make_html(args, amplicon_names, json_dict):
     js_strings = []
-    for amplicon, amplicon_dict in json_dict.items():
+    for amplicon_name in amplicon_names:
+    #for amplicon, amplicon_dict in json_dict.items():
+        try:
+            amplicon_dict = json_dict[amplicon_name]
+        except KeyError:
+            logging.info("No methylation patterns found for {}".format(amplicon_name))
+            continue
         # sort patterns on count in descending order
         amplicon_dict['patterns'].sort(key=lambda x:x['count'], reverse=True)
         json_str = json.dumps(amplicon_dict)
@@ -16,8 +23,6 @@ DOC_TEMPLATE = '''
 <meta charset="utf-8">
 <title>Methylation patterns</title>
 <style>
-
-@import url(style.css);
 
 .background {
   fill: #eee;
