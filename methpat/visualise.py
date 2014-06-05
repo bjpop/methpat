@@ -85,6 +85,17 @@ textarea {
    </select>
 </p>
 <p>
+histogram colour: <input type="color" id="histogram_colour" value="#00f900">
+</p>
+<p>
+<h4>Methylation pattern colours</h4>
+<table>
+<tr><td>methylated</td><td><input type="color" id="methylated_colour" value="#fffb00"></td></tr>
+<tr><td>unmethylated</td><td><input type="color" id="unmethylated_colour" value="#f90000"></td></tr>
+<tr><td>unknown</td><td><input type="color" id="unknown_colour" value="#0000f9"></td></tr>
+</table>
+</p>
+<p>
 <input id="redraw" type="button" value="redraw">
 </p>
 
@@ -154,7 +165,6 @@ function order_pattern_by_methylation(m1, m2) {
    if (delta == 0) {
       delta = m1.count - m2.count;
    }
-
    return delta;
 }
 
@@ -177,6 +187,11 @@ function create_matrix(data) {
    if (num_patterns == 0)
       return;
 
+   var histogram_colour = $('#histogram_colour').val()
+   var methylated_colour = $('#methylated_colour').val()
+   var unmethylated_colour = $('#unmethylated_colour').val()
+   var unknown_colour = $('#unknown_colour').val()
+   console.log(histogram_colour);
    var histogram_scaling = $('#histogram_scaling').val();
    var histogram_units = $('#histogram_units').val();
    var pattern_sort_by = $('#pattern_sort_by').val();
@@ -190,7 +205,12 @@ function create_matrix(data) {
 
    var all_graphs = d3.select("body").select("#all_graphs");
 
-   var heading = all_graphs.append("h3");
+   var this_graph = all_graphs.append("div")
+   
+   // if we want drag and drop then we need to set:
+   // this_grahp.attr("draggable", "true");
+
+   var heading = this_graph.append("h3");
    heading.text(data.amplicon + ' ' + data.chr + ' ' + data.start + ':' + data.end)
 
    // Compute the maximum, minimum and total counts for all the data.
@@ -252,7 +272,7 @@ function create_matrix(data) {
    var mag_scale = mag_scaler.domain(scale_domain).range(mag_range);
    var histo_scale = histo_scaler.domain(scale_domain).range(histo_range);
 
-   var patterns_svg = all_graphs.append("svg")
+   var patterns_svg = this_graph.append("svg")
       .attr("height", img_height)
       .attr("width", img_width)
 
@@ -304,13 +324,13 @@ function create_matrix(data) {
            var meth_state = d.meth_state;
 
            if (meth_state == 0) {
-              return make_colour('red', d.count);
+              return make_colour(unmethylated_colour, d.count);
            }
            else if (meth_state == 1) {
-              return make_colour('yellow', d.count);
+              return make_colour(methylated_colour, d.count);
            } 
            else if (meth_state == 2) {
-              return make_colour('blue', d.count);
+              return make_colour(unknown_colour, d.count);
            };
         })
 
@@ -330,7 +350,7 @@ function create_matrix(data) {
        .attr("class", "cell")
        .attr("width", cell_width)
        .attr("height", function(d, i) { return histo_scale(scale_count(d.count, total_count, histogram_units)); })
-       .attr("fill", 'green');
+       .attr("fill", histogram_colour);
 
     histogram.append("g").
         attr("class", "axis").
