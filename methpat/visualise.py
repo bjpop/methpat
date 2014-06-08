@@ -52,48 +52,93 @@ textarea {
     font-size: 11px;
 }
 
+#settings {
+   display:none
+}
+
+/*
+.meta_data_table {
+   margin: 10px;
+}
+*/
+
 </style>
 
 <h1>Methylation Patterns</h1>
 
-<p>
-   pattern sort by:
-   <select id="pattern_sort_by">
-      <option value="frequency">epiallele frequency</option>
-      <option value="methylation">degree of methylation</option>
-   </select>
-</p>
-<p>
-   pattern sort direction:
-   <select id="pattern_sort_direction">
-      <option value="descending">descending</option>
-      <option value="ascending">ascending</option>
-   </select>
-</p>
-<p>
-   histogram scaling:
-   <select id="histogram_scaling">
+<div id="settings">
+<hr>
+<h3>Visualisation settings</h3>
+
+<table>
+<tr>
+   <td>scaling</td>
+   <td><select id="histogram_scaling">
       <option value="log">log</option>
       <option value="linear">linear</option>
-   </select>
-</p>
-<p>
-   histogram units:
-   <select id="histogram_units">
-      <option value="percent">percent</option>
-      <option value="absolute">absolute</option>
-   </select>
-</p>
-<p>
-histogram colour: <input type="color" id="histogram_colour" value="#00f900">
-</p>
-<p>
-<h4>Methylation pattern colours</h4>
+      </select>
+   </td>
+</tr>
+<tr>
+   <td>scale pattern intensity</td>
+   <td><select id="scale_pattern_intensity">
+      <option value="false">false</option>
+      <option value="true">true</option>
+      </select>
+   </td>
+</tr>
+</table>
+
+<h4>Pattern sorting</h4>
+<table>
+<tr><td>sort by</td>
+    <td><select id="pattern_sort_by">
+      <option value="frequency">epiallele frequency</option>
+      <option value="methylation">degree of methylation</option>
+      </select>
+    </td>
+</tr>
+<tr><td>sort direction</td>
+    <td><select id="pattern_sort_direction">
+        <option value="descending">descending</option>
+        <option value="ascending">ascending</option>
+        </select>
+    </td>
+</tr>
+</table>
+
+<h4>Methylation colours</h4>
 <table>
 <tr><td>methylated</td><td><input type="color" id="methylated_colour" value="#fffb00"></td></tr>
 <tr><td>unmethylated</td><td><input type="color" id="unmethylated_colour" value="#f90000"></td></tr>
 <tr><td>unknown</td><td><input type="color" id="unknown_colour" value="#0000f9"></td></tr>
 </table>
+
+<h4>Histogram settings</h4>
+<table>
+<tr>
+   <td>visible</td>
+   <td><select id="histogram_visible">
+      <option value="true">true</option>
+      <option value="false">false</option>
+      </select>
+   </td>
+</tr>
+<tr>
+   <td>units</td>
+   <td><select id="histogram_units">
+      <option value="percent">percent</option>
+      <option value="absolute">absolute</option>
+      </select>
+   </td>
+</tr>
+<tr><td>colour</td>
+    <td><input type="color" id="histogram_colour" value="#00f900"></td></tr>
+</table>
+<hr>
+</div>
+<p>
+<input id="toggle_settings" type="button" value="show settings">
 </p>
 <p>
 <input id="redraw" type="button" value="redraw">
@@ -104,6 +149,18 @@ histogram colour: <input type="color" id="histogram_colour" value="#00f900">
 <script>
 
 var scaling = 'log';
+
+$('#toggle_settings').click(function () {
+   var buttonLabel = $(this).val();
+   if (buttonLabel == "show settings") {
+      $(this).val("hide settings");
+   }
+   else {
+      $(this).val("show settings");
+   }
+   $('#settings').toggle();
+});
+
 
 $('#redraw').click(function () {
    draw_graphs();
@@ -187,11 +244,12 @@ function create_matrix(data) {
    if (num_patterns == 0)
       return;
 
+   var scale_pattern_intensity = $('#scale_pattern_intensity').val()
+   var histogram_visible = $('#histogram_visible').val()
    var histogram_colour = $('#histogram_colour').val()
    var methylated_colour = $('#methylated_colour').val()
    var unmethylated_colour = $('#unmethylated_colour').val()
    var unknown_colour = $('#unknown_colour').val()
-   console.log(histogram_colour);
    var histogram_scaling = $('#histogram_scaling').val();
    var histogram_units = $('#histogram_units').val();
    var pattern_sort_by = $('#pattern_sort_by').val();
@@ -201,7 +259,13 @@ function create_matrix(data) {
 
    var num_sites = patterns[0].methylation.length
 
-   var margin = {top: 0, right: 50, bottom: 10, left: 50};
+   if (histogram_visible == 'true') {
+      var margin = {top: 0, right: 10, bottom: 10, left: 50};
+   }
+   else
+   {
+      var margin = {top: 0, right: 10, bottom: 10, left: 10};
+   }
 
    var all_graphs = d3.select("body").select("#all_graphs");
 
@@ -212,6 +276,22 @@ function create_matrix(data) {
 
    var heading = this_graph.append("h3");
    heading.text(data.amplicon + ' ' + data.chr + ' ' + data.start + ':' + data.end)
+
+   // If we want to display the meta data in a table:
+   /*
+   var meta_data_table_div = this_graph.append("div");
+   var meta_data_table = meta_data_table_div.append("table").attr("class", "meta_data_table").attr("border", "1");
+   var heading_row = meta_data_table.append("tr");
+   heading_row.append("th").text("amplicon"); 
+   heading_row.append("th").text("chrom"); 
+   heading_row.append("th").text("start"); 
+   heading_row.append("th").text("end"); 
+   var data_row = meta_data_table.append("tr");
+   data_row.append("td").text(data.amplicon); 
+   data_row.append("td").text(data.chr); 
+   data_row.append("td").text(data.start); 
+   data_row.append("td").text(data.end); 
+   */
 
    // Compute the maximum, minimum and total counts for all the data.
    var max_count = -1, min_count = -1, total_count = 0;
@@ -239,7 +319,12 @@ function create_matrix(data) {
    var vertical_gap = 3;
 
    var img_width = num_patterns * cell_width + margin.left + margin.right + vertical_gap;
-   var img_height = patterns_height + horizontal_gap + counts_height + margin.top + margin.bottom;
+   if (histogram_visible == 'true') {
+      var img_height = patterns_height + horizontal_gap + counts_height + margin.top + margin.bottom;
+   }
+   else {
+      var img_height = patterns_height + margin.top + margin.bottom;
+   }
 
    var cell_y = d3.scale.ordinal()
       .domain(d3.range(num_sites))
@@ -317,7 +402,9 @@ function create_matrix(data) {
 
            function make_colour(name, count) {
               var colour = d3.hsl(name);
-              colour.l = mag_scale(scale_count(count, total_count, histogram_units));
+              if (scale_pattern_intensity == 'true') {
+                 colour.l = mag_scale(scale_count(count, total_count, histogram_units));
+              }
               return colour;
            }
 
@@ -334,28 +421,30 @@ function create_matrix(data) {
            };
         })
 
-    var histogram = image_group.append("g")
-      .attr("class", "histogram");
+    if (histogram_visible == 'true') {
+        var histogram = image_group.append("g")
+          .attr("class", "histogram");
 
-    var histogram_bars = histogram.append("g")
-      .attr("class", "histogram_bars")
-      .attr("transform", "translate(" + vertical_gap + "," + 0 + ")");
+        var histogram_bars = histogram.append("g")
+          .attr("class", "histogram_bars")
+          .attr("transform", "translate(" + vertical_gap + "," + 0 + ")");
 
-    var count_bars = histogram_bars.selectAll(".count_bar")
-       .data(patterns)
-       .enter().append("rect")
-       .attr("class", "count_bar")
-       .attr("transform", function(d, i)
-           { return "translate(" + (i * cell_width) + "," + (patterns_height + horizontal_gap) + ")"; })
-       .attr("class", "cell")
-       .attr("width", cell_width)
-       .attr("height", function(d, i) { return histo_scale(scale_count(d.count, total_count, histogram_units)); })
-       .attr("fill", histogram_colour);
+        var count_bars = histogram_bars.selectAll(".count_bar")
+           .data(patterns)
+           .enter().append("rect")
+           .attr("class", "count_bar")
+           .attr("transform", function(d, i)
+               { return "translate(" + (i * cell_width) + "," + (patterns_height + horizontal_gap) + ")"; })
+           .attr("class", "cell")
+           .attr("width", cell_width)
+           .attr("height", function(d, i) { return histo_scale(scale_count(d.count, total_count, histogram_units)); })
+           .attr("fill", histogram_colour);
 
-    histogram.append("g").
-        attr("class", "axis").
-        attr("transform", "translate(" + 0 + "," + (patterns_height + horizontal_gap) + ")").
-        call(histo_y_axis)
+        histogram.append("g").
+            attr("class", "axis").
+            attr("transform", "translate(" + 0 + "," + (patterns_height + horizontal_gap) + ")").
+            call(histo_y_axis)
+    }
 }
 
 function draw_graphs() {
