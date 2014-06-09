@@ -400,8 +400,8 @@ function create_matrix(data) {
        .data(sites)
        .enter().append("text")
        // translate the text in the x direction (shift it down the page)
-       .attr("transform", function(d, i) { return "translate(0," + (((i+1) * cell_height) - (cell_height / 4)) + ")"; })
-       .attr("font-size", cell_height / 1.5)
+       .attr("transform", function(d, i) { return "translate(0," + (((i+1) * cell_height) - (cell_height * 0.165)) + ")"; })
+       .attr("font-size", cell_height * 0.67)
        .attr("font-family", "sans-serif")
        // Probably should right justify the text
        //.attr("text-anchor", "left")
