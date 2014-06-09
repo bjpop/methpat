@@ -79,6 +79,16 @@ textarea {
       </select>
    </td>
 </tr>
+</table>
+
+<h4>Methylation pattern settings</h4>
+<table>
+<tr>
+   <td>cell size (pixels)</td>
+   <td>
+       <input id="pattern_cell_size" type="number" min="1" max="9999" value="15">
+   </td>
+</tr>
 <tr>
    <td>scale pattern intensity</td>
    <td><select id="scale_pattern_intensity">
@@ -87,10 +97,13 @@ textarea {
       </select>
    </td>
 </tr>
-</table>
-
-<h4>Pattern sorting</h4>
-<table>
+<tr><td>methylation site direction</td>
+    <td><select id="methylation_site_direction">
+        <option value="ascending">ascending</option>
+        <option value="descending">descending</option>
+        </select>
+    </td>
+</tr>
 <tr><td>sort by</td>
     <td><select id="pattern_sort_by">
       <option value="frequency">epiallele frequency</option>
@@ -105,10 +118,6 @@ textarea {
         </select>
     </td>
 </tr>
-</table>
-
-<h4>Methylation colours</h4>
-<table>
 <tr><td>methylated</td><td><input type="color" id="methylated_colour" value="#fffb00"></td></tr>
 <tr><td>unmethylated</td><td><input type="color" id="unmethylated_colour" value="#f90000"></td></tr>
 <tr><td>unknown</td><td><input type="color" id="unknown_colour" value="#0000f9"></td></tr>
@@ -122,6 +131,12 @@ textarea {
       <option value="true">true</option>
       <option value="false">false</option>
       </select>
+   </td>
+</tr>
+<tr>
+   <td>height (pixels)</td>
+   <td>
+       <input id="histogram_height" type="number" min="1" max="9999" value="100">
    </td>
 </tr>
 <tr>
@@ -244,6 +259,8 @@ function create_matrix(data) {
    if (num_patterns == 0)
       return;
 
+   var histogram_height = parseInt($('#histogram_height').val())
+   var pattern_cell_size = parseInt($('#pattern_cell_size').val())
    var scale_pattern_intensity = $('#scale_pattern_intensity').val()
    var histogram_visible = $('#histogram_visible').val()
    var histogram_colour = $('#histogram_colour').val()
@@ -252,20 +269,27 @@ function create_matrix(data) {
    var unknown_colour = $('#unknown_colour').val()
    var histogram_scaling = $('#histogram_scaling').val();
    var histogram_units = $('#histogram_units').val();
+   var methylation_site_direction = $('#methylation_site_direction').val();
    var pattern_sort_by = $('#pattern_sort_by').val();
    var pattern_sort_direction = $('#pattern_sort_direction').val();
+
+   var sites = data.sites;
+
+   if (methylation_site_direction == 'ascending') {
+      sites.sort(function(a, b) { return a - b; });
+   }
+   else
+   {
+      sites.sort(function(a, b) { return b - a; });
+   }
 
    patterns.sort(function(a, b) { return order_pattern(a, b, pattern_sort_by, pattern_sort_direction); });
 
    var num_sites = patterns[0].methylation.length
 
-   if (histogram_visible == 'true') {
-      var margin = {top: 0, right: 10, bottom: 10, left: 50};
-   }
-   else
-   {
-      var margin = {top: 0, right: 10, bottom: 10, left: 10};
-   }
+   //left margin should be computed from the width of a string of digits, say 10 digits long.
+
+   var margin = {top: 0, right: 10, bottom: 10, left: 4 * pattern_cell_size};
 
    var all_graphs = d3.select("body").select("#all_graphs");
 
@@ -309,18 +333,17 @@ function create_matrix(data) {
       }
    } 
 
-   var cell_width = 10;
-   var cell_height = cell_width;
+   var cell_width = pattern_cell_size;
+   var cell_height = pattern_cell_size;
    var width = num_sites * cell_width;
 
    var patterns_height = num_sites * cell_height;
-   var counts_height = 100;
    var horizontal_gap = 10;
    var vertical_gap = 3;
 
    var img_width = num_patterns * cell_width + margin.left + margin.right + vertical_gap;
    if (histogram_visible == 'true') {
-      var img_height = patterns_height + horizontal_gap + counts_height + margin.top + margin.bottom;
+      var img_height = patterns_height + horizontal_gap + histogram_height + margin.top + margin.bottom;
    }
    else {
       var img_height = patterns_height + margin.top + margin.bottom;
@@ -341,7 +364,7 @@ function create_matrix(data) {
    } 
 
    var mag_range = [0.2, 0.7];
-   var histo_range = [1, counts_height];
+   var histo_range = [1, histogram_height];
 
    switch(histogram_scaling) {
       case 'linear':
@@ -373,6 +396,17 @@ function create_matrix(data) {
       .attr("class", "patterns")
       .attr("transform", "translate(" + vertical_gap + "," + 0 + ")");
 
+   var positions = patterns_svg.selectAll(".text")
+       .data(sites)
+       .enter().append("text")
+       // translate the text in the x direction (shift it down the page)
+       .attr("transform", function(d, i) { return "translate(0," + (((i+1) * cell_height) - (cell_height / 4)) + ")"; })
+       .attr("font-size", cell_height / 1.5)
+       .attr("font-family", "sans-serif")
+       // Probably should right justify the text
+       //.attr("text-anchor", "left")
+       .text(function(d, i) { return sites[i]; });
+
    var columns = patterns_group.selectAll(".column")
        .data(patterns)
        .enter().append("g")
@@ -388,7 +422,12 @@ function create_matrix(data) {
                var cell_val = { meth_state : d.methylation[i], count : d.count }
                values.push(cell_val);
            }
-           return values.reverse();
+           if (methylation_site_direction == 'ascending') {
+              return values;
+           }
+           else {
+              return values.reverse();
+           }
        })
        .enter().append("rect")
        .attr("class", "cell")

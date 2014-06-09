@@ -210,6 +210,8 @@ def main():
         if not intersection:
 	    logging.info("read {0} in chromosome {1} not in any amplicon".format(read_id, read.chr)) 
 
+    # map each amplicon name to a list of its unique methylation sites (chr positions)
+    amplicon_unique_sites = {}
     result = []
     for amplicon in methyl_state_counts:
         # compute the set of unique CPG sites for this amplicon
@@ -218,6 +220,7 @@ def main():
             unique_sites.update([site.pos for site in cpg_sites])
         # sort the unique CPG sites into ascending order of position
         unique_sites = sorted(unique_sites)
+        amplicon_unique_sites[amplicon] = unique_sites
         for cpg_sites, count in methyl_state_counts[amplicon].items():
             if count >= args.count_thresh:
                 start_pos = cpg_sites[0].pos
@@ -239,7 +242,12 @@ def main():
             amplicon_dict = json_dict[amplicon]
             amplicon_dict['patterns'].append(pattern_dict)
         else:
+            try:
+                unique_sites = amplicon_unique_sites[amplicon]
+            except KeyError:
+                unique_sites = []
             amplicon_dict = { 'amplicon': amplicon
+                            , 'sites': unique_sites
                             , 'chr': chr
                             , 'start': start
                             , 'end': end
