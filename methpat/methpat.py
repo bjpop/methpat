@@ -218,17 +218,18 @@ def main():
         unique_sites = set()
         for cpg_sites in methyl_state_counts[amplicon].keys():
             unique_sites.update([site.pos for site in cpg_sites])
-        # sort the unique CPG sites into ascending order of position
-        unique_sites = sorted(unique_sites)
-        amplicon_unique_sites[amplicon] = unique_sites
-        for cpg_sites, count in methyl_state_counts[amplicon].items():
-            if count >= args.count_thresh:
-                start_pos = cpg_sites[0].pos
-                end_pos = cpg_sites[-1].pos
-                binary = pretty_state(unique_sites, cpg_sites)
-                binary_raw = str(cpg_sites)
-                chr = amplicon_chromosomes[amplicon]
-                result.append((amplicon, chr, start_pos, end_pos, binary, count, binary_raw))
+        if len(unique_sites) > 0:
+            # sort the unique CPG sites into ascending order of position
+            unique_sites = sorted(unique_sites)
+            amplicon_unique_sites[amplicon] = unique_sites
+            start_pos = unique_sites[0]
+            end_pos = unique_sites[-1]
+            for cpg_sites, count in methyl_state_counts[amplicon].items():
+                if count >= args.count_thresh:
+                    binary = pretty_state(unique_sites, cpg_sites)
+                    binary_raw = str(cpg_sites)
+                    chr = amplicon_chromosomes[amplicon]
+                    result.append((amplicon, chr, start_pos, end_pos, binary, count, binary_raw))
 
     print('\t'.join(["<amplicon ID>", "<chr>", "<Base position start/CpG start>",
           "<Base position end/CpG end>", "<Methylation pattern>", "<count>", "<raw cpg sites>"]))
