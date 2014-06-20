@@ -285,7 +285,7 @@ function create_matrix(data) {
 
    patterns.sort(function(a, b) { return order_pattern(a, b, pattern_sort_by, pattern_sort_direction); });
 
-   var num_sites = patterns[0].methylation.length
+   var num_sites = patterns[0].methylation.length;
 
    //left margin should be computed from the width of a string of digits, say 10 digits long.
 
@@ -337,6 +337,9 @@ function create_matrix(data) {
    var cell_height = pattern_cell_size;
    var width = num_sites * cell_width;
 
+   var pattern_numbers_height = 20; // XXX should be based on the width of some text
+   var pattern_numbers_gap = 5;
+   var pattern_numbers_shift = pattern_numbers_height + pattern_numbers_gap;
    var patterns_height = num_sites * cell_height;
    var horizontal_gap = 10;
    var vertical_gap = 3;
@@ -344,10 +347,10 @@ function create_matrix(data) {
 
    var img_width = num_patterns * cell_width + margin.left + margin.right + vertical_gap;
    if (histogram_visible == 'true') {
-      var img_height = patterns_height + horizontal_gap + histogram_height + margin.top + margin.bottom;
+      var img_height = pattern_numbers_shift + patterns_height + horizontal_gap + histogram_height + margin.top + margin.bottom;
    }
    else {
-      var img_height = patterns_height + margin.top + margin.bottom;
+      var img_height = pattern_numbers_shift + patterns_height + margin.top + margin.bottom;
    }
 
    var cell_y = d3.scale.ordinal()
@@ -385,23 +388,35 @@ function create_matrix(data) {
       .attr("height", img_height)
       .attr("width", img_width)
 
+   var patterns_numbers_group = patterns_svg.append("g")
+      .attr("class", "patterns_numbers_group")
+      .attr("transform", "translate(" + (margin.left + vertical_gap) + "," + pattern_numbers_height + ")");
+
+   var patterns_numbers = patterns_numbers_group.selectAll(".text")
+      .data(patterns)
+      .enter().append("text")
+      .attr("transform", function(d, i)
+          { return "translate(" + (((i + 1) * cell_width) - (cell_width * 0.165)) + ",0) rotate(-90)"; })
+      .attr("font-size", label_font_size)
+      .attr("font-family", "sans-serif")
+      .text(function(d, i) { return i + 1; });
+
    var patterns_group = patterns_svg.append("g")
-      .attr("class", "patterns");
+      .attr("class", "patterns")
+      .attr("transform", "translate(0," + pattern_numbers_shift + ")");
 
    var positions = patterns_group.selectAll(".text")
        .data(sites)
        .enter().append("text")
-       // translate the text in the x direction (shift it down the page)
-       .attr("transform", function(d, i) { return "translate(0," + (((i+1) * cell_height) - (cell_height * 0.165)) + ")"; })
+       .attr("transform", function(d, i)
+          { return "translate(0," + (((i+1) * cell_height) - (cell_height * 0.165)) + ")"; })
        .attr("font-size", label_font_size)
        .attr("font-family", "sans-serif")
-       // Probably should right justify the text
-       //.attr("text-anchor", "left")
        .text(function(d, i) { return sites[i]; });
 
    var patterns_group_columns = patterns_group.append("g")
-      .attr("class", "patterns")
-      .attr("transform", "translate(" + (margin.left + vertical_gap) + "," + 0 + ")");
+      .attr("class", "patterns_columns")
+      .attr("transform", "translate(" + (margin.left + vertical_gap) + ",0)");
 
    var columns = patterns_group_columns.selectAll(".column")
        .data(patterns)
@@ -461,7 +476,7 @@ function create_matrix(data) {
        var histogram_group = patterns_svg.append("g")
           .attr("class", "histogram")
           .attr("transform", function(d, i)
-               { return "translate(0," + (patterns_height + horizontal_gap) + ")"; });
+               { return "translate(0," + (pattern_numbers_shift + patterns_height + horizontal_gap) + ")"; });
 
         var histogram_bars = histogram_group.append("g")
           .attr("class", "histogram_bars")
