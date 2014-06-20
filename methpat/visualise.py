@@ -289,21 +289,21 @@ function create_matrix(data) {
 
    //left margin should be computed from the width of a string of digits, say 10 digits long.
 
-   var margin = {top: 0, right: 10, bottom: 10, left: 4 * pattern_cell_size};
+   var margin = {top: 10, right: 10, bottom: 10, left: 4 * pattern_cell_size};
 
    var all_graphs = d3.select("body").select("#all_graphs");
 
-   var this_graph = all_graphs.append("div")
+   var this_amplicon = all_graphs.append("div").attr("class", "amplicon");
    
    // if we want drag and drop then we need to set:
-   // this_grahp.attr("draggable", "true");
+   // this_amplicon.attr("draggable", "true");
 
-   var heading = this_graph.append("h3");
+   var heading = this_amplicon.append("h3");
    heading.text(data.amplicon + ' ' + data.chr + ' ' + data.start + ':' + data.end)
 
    // If we want to display the meta data in a table:
    /*
-   var meta_data_table_div = this_graph.append("div");
+   var meta_data_table_div = this_amplicon.append("div");
    var meta_data_table = meta_data_table_div.append("table").attr("class", "meta_data_table").attr("border", "1");
    var heading_row = meta_data_table.append("tr");
    heading_row.append("th").text("amplicon"); 
@@ -340,6 +340,7 @@ function create_matrix(data) {
    var patterns_height = num_sites * cell_height;
    var horizontal_gap = 10;
    var vertical_gap = 3;
+   var label_font_size = cell_height * 0.67;
 
    var img_width = num_patterns * cell_width + margin.left + margin.right + vertical_gap;
    if (histogram_visible == 'true') {
@@ -380,34 +381,29 @@ function create_matrix(data) {
    var mag_scale = mag_scaler.domain(scale_domain).range(mag_range);
    var histo_scale = histo_scaler.domain(scale_domain).range(histo_range);
 
-   var patterns_svg = this_graph.append("svg")
+   var patterns_svg = this_amplicon.append("svg")
       .attr("height", img_height)
       .attr("width", img_width)
 
-   var image_group = patterns_svg.append("g")
-      .attr("transform", "translate(" + (margin.left) + "," + 0 + ")");
+   var patterns_group = patterns_svg.append("g")
+      .attr("class", "patterns");
 
-   var histo_y_axis = d3.svg.axis()
-      .scale(histo_scale)
-      .orient("left")
-      .ticks(5);
-
-   var patterns_group = image_group.append("g")
-      .attr("class", "patterns")
-      .attr("transform", "translate(" + vertical_gap + "," + 0 + ")");
-
-   var positions = patterns_svg.selectAll(".text")
+   var positions = patterns_group.selectAll(".text")
        .data(sites)
        .enter().append("text")
        // translate the text in the x direction (shift it down the page)
        .attr("transform", function(d, i) { return "translate(0," + (((i+1) * cell_height) - (cell_height * 0.165)) + ")"; })
-       .attr("font-size", cell_height * 0.67)
+       .attr("font-size", label_font_size)
        .attr("font-family", "sans-serif")
        // Probably should right justify the text
        //.attr("text-anchor", "left")
        .text(function(d, i) { return sites[i]; });
 
-   var columns = patterns_group.selectAll(".column")
+   var patterns_group_columns = patterns_group.append("g")
+      .attr("class", "patterns")
+      .attr("transform", "translate(" + (margin.left + vertical_gap) + "," + 0 + ")");
+
+   var columns = patterns_group_columns.selectAll(".column")
        .data(patterns)
        .enter().append("g")
        .attr("class", "column")
@@ -461,28 +457,60 @@ function create_matrix(data) {
         })
 
     if (histogram_visible == 'true') {
-        var histogram = image_group.append("g")
-          .attr("class", "histogram");
 
-        var histogram_bars = histogram.append("g")
+       var histogram_group = patterns_svg.append("g")
+          .attr("class", "histogram")
+          .attr("transform", function(d, i)
+               { return "translate(0," + (patterns_height + horizontal_gap) + ")"; });
+
+        var histogram_bars = histogram_group.append("g")
           .attr("class", "histogram_bars")
-          .attr("transform", "translate(" + vertical_gap + "," + 0 + ")");
+          .attr("transform", "translate(" + (margin.left + vertical_gap) + "," + 0 + ")");
 
         var count_bars = histogram_bars.selectAll(".count_bar")
            .data(patterns)
            .enter().append("rect")
            .attr("class", "count_bar")
            .attr("transform", function(d, i)
-               { return "translate(" + (i * cell_width) + "," + (patterns_height + horizontal_gap) + ")"; })
-           .attr("class", "cell")
+               { return "translate(" + (i * cell_width) + ", 0)"; })
            .attr("width", cell_width)
            .attr("height", function(d, i) { return histo_scale(scale_count(d.count, total_count, histogram_units)); })
            .attr("fill", histogram_colour);
 
-        histogram.append("g").
-            attr("class", "axis").
-            attr("transform", "translate(" + 0 + "," + (patterns_height + horizontal_gap) + ")").
-            call(histo_y_axis)
+        var histo_y_axis = d3.svg.axis()
+           .scale(histo_scale)
+           .orient("left")
+           .ticks(5);
+
+        var histogram_axis_group = histogram_group.append("g")
+            .attr("class", "axis")
+            .attr("transform", "translate(" + margin.left + "," + 0 + ")")
+            .call(histo_y_axis)
+
+        var axis_label_str = '';
+
+        switch(histogram_units) {
+           case 'percent':
+               axis_label_str += '%% of reads';
+               break;
+           case 'absolute':
+               axis_label_str += 'read count';
+               break;
+        }
+        switch(histogram_scaling) {
+           case 'log':
+               axis_label_str = axis_label_str + " (log scale)";
+               break;
+        }
+
+        histogram_group.append("text")
+            .attr("class", "axis_label")
+            .attr("dy", "1em")
+            .attr("font-family", "sans-serif")
+            .attr("font-size", label_font_size)
+            .attr("transform", "translate(0," + (histogram_height / 2) + ") rotate(-90)")
+            .attr("text-anchor", "middle")
+            .text(axis_label_str);
     }
 }
 
