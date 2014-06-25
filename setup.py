@@ -8,7 +8,7 @@ setup(
     author='Bernie Pope',
     author_email='bjpope@unimelb.edu.au',
     packages=['methpat'],
-    scripts=['methpat/out_to_vis_csv.py'],
+    scripts=[],
     entry_points={
         'console_scripts': ['methpat = methpat.methpat:main']
     },
