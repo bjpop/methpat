@@ -1,3 +1,6 @@
+// Code from: https://github.com/exupero/saveSvgAsPng
+// copyright belongs to the author of this code, Eric Shull,
+
 (function() {
   var out$ = typeof exports != 'undefined' && exports || this;
 
