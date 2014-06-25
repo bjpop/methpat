@@ -236,6 +236,9 @@ def main():
 
     json_dict = {}
  
+    # unique number for each amplicon
+    unique_id = 0
+
     for amplicon, chr, start, end, binary, count, binary_raw in sorted(result):
         print('\t'.join([amplicon, chr, str(start), str(end), binary, str(count), binary_raw]))
         pattern_dict = { 'count': count, 'methylation': to_json_pattern(binary) }
@@ -247,13 +250,15 @@ def main():
                 unique_sites = amplicon_unique_sites[amplicon]
             except KeyError:
                 unique_sites = []
-            amplicon_dict = { 'amplicon': amplicon
+            amplicon_dict = { 'unique_id': unique_id
+                            , 'amplicon': amplicon
                             , 'sites': unique_sites
                             , 'chr': chr
                             , 'start': start
                             , 'end': end
                             , 'patterns': [pattern_dict] }
             json_dict[amplicon] = amplicon_dict
+            unique_id += 1
 
     make_html(args, amplicon_names, json_dict)
 

@@ -161,6 +161,7 @@ textarea {
 
 <script type="text/javascript" src="d3.v3.min.js"></script>
 <script type="text/javascript" src="jquery-1.6.4.min.js"></script>
+<script type="text/javascript" src="saveSvgAsPng.js"></script>
 <script>
 
 var scaling = 'log';
@@ -253,6 +254,7 @@ function scale_count(count, total_count, units) {
 
 function create_matrix(data) {
 
+   var unique_id = data.unique_id;
    var patterns = data.patterns;
    var num_patterns = patterns.length;
 
@@ -272,6 +274,7 @@ function create_matrix(data) {
    var methylation_site_direction = $('#methylation_site_direction').val();
    var pattern_sort_by = $('#pattern_sort_by').val();
    var pattern_sort_direction = $('#pattern_sort_direction').val();
+   var svg_unique_id = "svg" + unique_id;
 
    var sites = data.sites;
 
@@ -300,6 +303,20 @@ function create_matrix(data) {
 
    var heading = this_amplicon.append("h3");
    heading.text(data.amplicon + ' ' + data.chr + ' ' + data.start + ':' + data.end)
+
+   var save_para = this_amplicon.append("p");
+
+   var save_button_id = "save" + unique_id;
+
+   var save_button = save_para.append("input")
+      .attr("id", save_button_id)
+      .attr("type", "button")
+      .attr("value", "save");
+
+   $('#'+save_button_id).click(function () {
+      console.log(save_button_id + ' clicked');
+      saveSvgAsPng(document.getElementById(svg_unique_id), data.amplicon + ".png", 3);
+   });
 
    // If we want to display the meta data in a table:
    /*
@@ -384,9 +401,11 @@ function create_matrix(data) {
    var mag_scale = mag_scaler.domain(scale_domain).range(mag_range);
    var histo_scale = histo_scaler.domain(scale_domain).range(histo_range);
 
+
    var patterns_svg = this_amplicon.append("svg")
       .attr("height", img_height)
       .attr("width", img_width)
+      .attr("id", svg_unique_id)
 
    var patterns_numbers_group = patterns_svg.append("g")
       .attr("class", "patterns_numbers_group")
