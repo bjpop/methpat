@@ -3,11 +3,18 @@ import logging
 from pkg_resources import resource_filename
 import os
 
-def web_assets():
-    asset_names = ['d3.v3.min.js', 'jquery-1.6.4.min.js', 'saveSvgAsPng.js']
-    asset_paths = [ resource_filename('methpat', os.path.join('data', asset))
-                        for asset in asset_names]
+def web_assets(args):
     script_link = '<script type="text/javascript" src="{}"></script>'
+    asset_names = ['d3.v3.min.js', 'jquery-1.6.4.min.js', 'saveSvgAsPng.js']
+    if args.webassets == 'package':
+        asset_paths = [ resource_filename('methpat', os.path.join('data', asset))
+                            for asset in asset_names]
+    elif args.webassets == 'online':
+        asset_paths = [ "http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"
+                      , "http://d3js.org/d3.v3.min.js"
+                      , "http://bjpop.github.io/saveSvgAsPng/saveSvgAsPng.js" ]
+    else: #args.webassets == 'local':
+        asset_paths = asset_names
     asset_links = [ script_link.format(path) for path in asset_paths ]
     return '\n'.join(asset_links)
 
@@ -24,7 +31,7 @@ def make_html(args, amplicon_names, json_dict):
         amplicon_dict['patterns'].sort(key=lambda x:x['count'], reverse=True)
         json_str = json.dumps(amplicon_dict)
         js_strings.append('create_matrix({});'.format(json_str))
-    doc = DOC_TEMPLATE % (web_assets(), '\n'.join(js_strings))
+    doc = DOC_TEMPLATE % (web_assets(args), '\n'.join(js_strings))
     with open(args.html, 'w') as html_file:
         html_file.write(doc)
 

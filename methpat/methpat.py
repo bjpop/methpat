@@ -7,6 +7,8 @@ from argparse import ArgumentParser
 import logging
 from visualise import make_html
 
+DEFAULT_WEBASSETS = 'package'
+
 def parseArgs():
     parser = ArgumentParser(
         description = 'Count methylation patterns in bismark output')
@@ -18,14 +20,17 @@ def parseArgs():
         help='input bismark file')
     parser.add_argument(
         '--count_thresh', metavar='THRESH', type=int, default=0,
-        help='Only display methylation patterns with at least THRESH number of matching reads')
+        help='only display methylation patterns with at least THRESH number of matching reads')
     parser.add_argument(
         '--amplicons', metavar='AMPLICONS_FILE', type=str, required=True,
-        help='Only display methylation patterns with at least THRESH number of matching reads')
+        help='file containing amplicon information in TSV format')
     parser.add_argument('--logfile', metavar='FILENAME', type=str, required=True,
         help='log progress in FILENAME')
     parser.add_argument('--html', metavar='FILENAME', type=str, required=True,
         help='save visualisation in html FILENAME')
+    parser.add_argument('--webassets', choices=('package', 'local', 'online'), type=str,
+        default=DEFAULT_WEBASSETS,
+        help='location of assets used by output visualisation web page, defaults to {}'.format(DEFAULT_WEBASSETS))
     return parser.parse_args()
 
 def encode_methyl(char):
@@ -261,9 +266,6 @@ def main():
             unique_id += 1
 
     make_html(args, amplicon_names, json_dict)
-    #import pkg_resources
-    #f = pkg_resources.resource_filename('methpat', 'data/jquery-1.6.4.min.js')
-    #print(f)
 
 
 def to_json_pattern(binary):
