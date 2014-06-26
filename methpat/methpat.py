@@ -261,6 +261,9 @@ def main():
             unique_id += 1
 
     make_html(args, amplicon_names, json_dict)
+    #import pkg_resources
+    #f = pkg_resources.resource_filename('methpat', 'data/jquery-1.6.4.min.js')
+    #print(f)
 
 
 def to_json_pattern(binary):

@@ -1,5 +1,15 @@
 import json
 import logging
+from pkg_resources import resource_filename
+import os
+
+def web_assets():
+    asset_names = ['d3.v3.min.js', 'jquery-1.6.4.min.js', 'saveSvgAsPng.js']
+    asset_paths = [ resource_filename('methpat', os.path.join('data', asset))
+                        for asset in asset_names]
+    script_link = '<script type="text/javascript" src="{}"></script>'
+    asset_links = [ script_link.format(path) for path in asset_paths ]
+    return '\n'.join(asset_links)
 
 def make_html(args, amplicon_names, json_dict):
     js_strings = []
@@ -14,12 +24,13 @@ def make_html(args, amplicon_names, json_dict):
         amplicon_dict['patterns'].sort(key=lambda x:x['count'], reverse=True)
         json_str = json.dumps(amplicon_dict)
         js_strings.append('create_matrix({});'.format(json_str))
-    doc = DOC_TEMPLATE % '\n'.join(js_strings)
+    doc = DOC_TEMPLATE % (web_assets(), '\n'.join(js_strings))
     with open(args.html, 'w') as html_file:
         html_file.write(doc)
 
 DOC_TEMPLATE = '''
 <!DOCTYPE html>
+<head>
 <meta charset="utf-8">
 <title>Methylation patterns</title>
 <style>
@@ -63,6 +74,12 @@ textarea {
 */
 
 </style>
+
+<!-- javascript assets -->
+%s
+
+</head>
+<body>
 
 <h1>Methylation Patterns</h1>
 
@@ -159,9 +176,7 @@ textarea {
 <input id="redraw" type="button" value="redraw">
 </p>
 
-<script type="text/javascript" src="d3.v3.min.js"></script>
-<script type="text/javascript" src="jquery-1.6.4.min.js"></script>
-<script type="text/javascript" src="saveSvgAsPng.js"></script>
+
 <script>
 
 var scaling = 'log';
@@ -562,4 +577,5 @@ function draw_graphs() {
 draw_graphs();
 
 </script>
+</body>
 '''
