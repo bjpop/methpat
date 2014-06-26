@@ -92,8 +92,8 @@ textarea {
 <tr>
    <td>scaling</td>
    <td><select id="histogram_scaling">
-      <option value="log">log</option>
       <option value="linear">linear</option>
+      <option value="log">log</option>
       </select>
    </td>
 </tr>
@@ -160,13 +160,13 @@ textarea {
 <tr>
    <td>units</td>
    <td><select id="histogram_units">
-      <option value="percent">percent</option>
       <option value="absolute">absolute</option>
+      <option value="percent">percent</option>
       </select>
    </td>
 </tr>
 <tr><td>colour</td>
-    <td><input type="color" id="histogram_colour" value="#00f900"></td></tr>
+    <td><input type="color" id="histogram_colour" value="#797979"></td></tr>
 </table>
 <hr>
 </div>
