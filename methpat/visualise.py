@@ -30,6 +30,7 @@ def make_html(args, amplicon_names, json_dict):
 
 DOC_TEMPLATE = '''
 <!DOCTYPE html>
+<html>
 <head>
 <meta charset="utf-8">
 <title>Methylation patterns</title>
@@ -578,4 +579,5 @@ draw_graphs();
 
 </script>
 </body>
+</html>
 '''
