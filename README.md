@@ -30,7 +30,7 @@ Usage
 
     usage: methpat [-h] [--dump_reads FILE] [--count_thresh THRESH] --amplicons
                    AMPLICONS_FILE --logfile FILENAME --html FILENAME
-                   BISMARK_FILE
+                   BISMARK_FILE [--webassets {package,local,online}]
     
     Count methylation patterns in bismark output
     
@@ -48,4 +48,7 @@ Usage
                             number of matching reads
       --logfile FILENAME    log progress in FILENAME
       --html FILENAME       save visualisation in html FILENAME
+      --webassets {package, local, online}
+                            location of required D3.js libraries. package = libraries on localhost,
+                            local = libraries in local directory of results, online = URL of libraries
     
