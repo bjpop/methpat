@@ -1,10 +1,11 @@
-// Code from: https://github.com/exupero/saveSvgAsPng
-// copyright belongs to the author of this code, Eric Shull,
-
 (function() {
   var out$ = typeof exports != 'undefined' && exports || this;
 
   var doctype = '<?xml version="1.0" standalone="no"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">';
+
+  function isExternal(url) {
+    return url && url.lastIndexOf('http',0) == 0 && url.lastIndexOf(window.location.host) == -1;
+  }
 
   function inlineImages(callback) {
     var images = document.querySelectorAll('svg image');
@@ -14,10 +15,18 @@
     }
     for (var i = 0; i < images.length; i++) {
       (function(image) {
+        var href = image.getAttribute('xlink:href');
+        if (href) {
+          if (isExternal(href.value)) {
+            console.warn("Cannot render embedded images linking to external hosts.");
+            return;
+          }
+        }
         var canvas = document.createElement('canvas');
         var ctx = canvas.getContext('2d');
         var img = new Image();
-        img.src = image.getAttribute('xlink:href');
+        href = href || image.getAttribute('href');
+        img.src = href;
         img.onload = function() {
           canvas.width = img.width;
           canvas.height = img.height;
@@ -28,29 +37,31 @@
             callback();
           }
         }
+        img.onerror = function() {
+          console.log("Could not load "+href);
+          left--;
+          if (left == 0) {
+            callback();
+          }
+        }
       })(images[i]);
     }
   }
 
-  function moveChildren(src, dest) {
-    while (src.childNodes.length > 0) {
-      var child = src.childNodes[0];
-      dest.appendChild(child);
-    }
-    return dest;
-  }
-
   function styles(dom) {
-    var used = "";
+    var css = "";
     var sheets = document.styleSheets;
     for (var i = 0; i < sheets.length; i++) {
+      if (isExternal(sheets[i].href)) {
+        console.warn("Cannot include styles from other hosts.");
+        continue;
+      }
       var rules = sheets[i].cssRules;
-      for (var j = 0; j < rules.length; j++) {
-        var rule = rules[j];
-        if (typeof(rule.style) != "undefined") {
-          var elems = dom.querySelectorAll(rule.selectorText);
-          if (elems.length > 0) {
-            used += rule.selectorText + " { " + rule.style.cssText + " }\n";
+      if (rules != null) {
+        for (var j = 0; j < rules.length; j++) {
+          var rule = rules[j];
+          if (typeof(rule.style) != "undefined") {
+            css += rule.selectorText + " { " + rule.style.cssText + " }\n";
           }
         }
       }
@@ -58,7 +69,7 @@
 
     var s = document.createElement('style');
     s.setAttribute('type', 'text/css');
-    s.innerHTML = "<![CDATA[\n" + used + "\n]]>";
+    s.innerHTML = "<![CDATA[\n" + css + "\n]]>";
 
     var defs = document.createElement('defs');
     defs.appendChild(s);
@@ -71,9 +82,17 @@
     inlineImages(function() {
       var outer = document.createElement("div");
       var clone = el.cloneNode(true);
-      var width = parseInt(clone.getAttribute("width"));
-      var height = parseInt(clone.getAttribute("height"));
-      
+      var width = parseInt(
+        clone.getAttribute('width')
+          || clone.style.width
+          || out$.getComputedStyle(el).getPropertyValue('width')
+      );
+      var height = parseInt(
+        clone.getAttribute('height')
+          || clone.style.height
+          || out$.getComputedStyle(el).getPropertyValue('height')
+      );
+
       var xmlns = "http://www.w3.org/2000/xmlns/";
 
       clone.setAttribute("version", "1.1");
@@ -81,9 +100,7 @@
       clone.setAttributeNS(xmlns, "xmlns:xlink", "http://www.w3.org/1999/xlink");
       clone.setAttribute("width", width * scaleFactor);
       clone.setAttribute("height", height * scaleFactor);
-      var scaling = document.createElement("g");
-      scaling.setAttribute("transform", "scale(" + scaleFactor + ")");
-      clone.appendChild(moveChildren(clone, scaling));
+      clone.setAttribute("viewBox", "0 0 " + width + " " + height);
       outer.appendChild(clone);
 
       clone.insertBefore(styles(clone), clone.firstChild);
