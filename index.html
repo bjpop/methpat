@@ -2,9 +2,9 @@
 <html>
 
   <head>
-    <meta charset='utf-8' />
-    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
-    <meta name="description" content="Methpat : A program for summarising CpG methylation patterns" />
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="Methpat : A program for summarising CpG methylation patterns">
 
     <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
 
@@ -32,12 +32,23 @@
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
         <h3>
-<a name="introduction" class="anchor" href="#introduction"><span class="octicon octicon-link"></span></a>Introduction</h3>
+<a id="introduction" class="anchor" href="#introduction" aria-hidden="true"><span class="octicon octicon-link"></span></a>Introduction</h3>
 
 <p>This program summarises the resultant DNA methylation pattern data from the output of <a href="http://www.bioinformatics.babraham.ac.uk/projects/bismark/">Bismark</a> bismark_methylation_extractor. Information of the DNA methylation positions for each amplicon, DNA methylation patterns observed within each amplicon and their abundance counts are summarised into a tab delimited text file amenable for further downstream statistical analysis and visualization.</p>
 
 <h2>
-<a name="installation" class="anchor" href="#installation"><span class="octicon octicon-link"></span></a>Installation</h2>
+<a id="requirements" class="anchor" href="#requirements" aria-hidden="true"><span class="octicon octicon-link"></span></a>Requirements</h2>
+
+<ul>
+<li>Whole genome bisulfite short read sequencing data (WGBS), or Reduced Representation Bisulfite Sequencing (RRBS), or Bisulfite Amplicon Sequencing.</li>
+<li>Bismark v0.12.2 and it’s dependencies (bwa v0.7.5a-r405).</li>
+<li>Python 2.7 or above (but not Python 3).</li>
+<li>Methpat and it’s dependencies <a href="https://github.com/bjpop/methpat">https://github.com/bjpop/methpat</a>.</li>
+<li>A modern web browser such as Chrome, Firefox or Safari.</li>
+</ul>
+
+<h2>
+<a id="installation" class="anchor" href="#installation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Installation</h2>
 
 <p>Methpat currently requires version 2.7 of Python.</p>
 
@@ -49,11 +60,12 @@
 <p>This will automatically download and install the dependencies of methpat.</p>
 
 <h2>
-<a name="usage" class="anchor" href="#usage"><span class="octicon octicon-link"></span></a>Usage</h2>
+<a id="usage" class="anchor" href="#usage" aria-hidden="true"><span class="octicon octicon-link"></span></a>Usage</h2>
 
-<pre><code>usage: methpat.py [-h] [--dump_reads FILE] [--count_thresh THRESH] --amplicons
-                  AMPLICONS_FILE --logfile FILENAME
-                  BISMARK_FILE
+<pre><code>usage: methpat [-h] [--dump_reads FILE] [--count_thresh THRESH] --amplicons
+               AMPLICONS_FILE --logfile FILENAME --html FILENAME
+               [--webassets {package,local,online}] [--title TITLE]
+               BISMARK_FILE
 
 Count methylation patterns in bismark output
 
@@ -64,12 +76,17 @@ optional arguments:
   -h, --help            show this help message and exit
   --dump_reads FILE     dump the read methylation information to FILE
   --count_thresh THRESH
-                        Only display methylation patterns with at least THRESH
+                        only display methylation patterns with at least THRESH
                         number of matching reads
   --amplicons AMPLICONS_FILE
-                        Only display methylation patterns with at least THRESH
-                        number of matching reads
+                        file containing amplicon information in TSV format
   --logfile FILENAME    log progress in FILENAME
+  --html FILENAME       save visualisation in html FILENAME
+  --webassets {package,local,online}
+                        location of assets used by output visualisation web
+                        page, defaults to package
+  --title TITLE         title of the output visualisation page, defaults to
+                        Methylation Patterns
 </code></pre>
       </section>
     </div>
