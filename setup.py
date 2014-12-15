@@ -9,7 +9,7 @@ setup(
     author_email='bjpope@unimelb.edu.au',
     packages=['methpat'],
     package_dir={'methpat': 'methpat'},
-    package_data={'methpat': ['data/*.js']},
+    package_data={'methpat': ['data/*.js', 'data/*.css']},
     scripts=[],
     entry_points={
         'console_scripts': ['methpat = methpat.methpat:main']

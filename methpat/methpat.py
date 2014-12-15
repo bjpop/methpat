@@ -8,6 +8,7 @@ import logging
 from visualise import make_html
 
 DEFAULT_WEBASSETS = 'package'
+DEFAULT_TITLE = 'Methylation Patterns'
 
 def parseArgs():
     parser = ArgumentParser(
@@ -31,6 +32,9 @@ def parseArgs():
     parser.add_argument('--webassets', choices=('package', 'local', 'online'), type=str,
         default=DEFAULT_WEBASSETS,
         help='location of assets used by output visualisation web page, defaults to {}'.format(DEFAULT_WEBASSETS))
+    parser.add_argument('--title', metavar='TITLE', type=str,
+        default=DEFAULT_TITLE,
+        help='title of the output visualisation page, defaults to {}'.format(DEFAULT_TITLE))
     return parser.parse_args()
 
 def encode_methyl(char):
@@ -257,7 +261,7 @@ def main():
                 unique_sites = []
             amplicon_dict = { 'unique_id': unique_id
                             , 'amplicon': amplicon
-                            , 'sites': unique_sites
+                            , 'sites': unique_sites   # CPG sites (chrom positions)
                             , 'chr': chr
                             , 'start': start
                             , 'end': end
@@ -265,7 +269,36 @@ def main():
             json_dict[amplicon] = amplicon_dict
             unique_id += 1
 
+    make_site_totals(json_dict)
     make_html(args, amplicon_names, json_dict)
+
+def make_site_totals(json_dict):
+    '''For each site in each amplicon, count up the number
+    of methylated, unmethylated and unknown samples
+    Add the information to the amplicon dictionary.
+    '''
+    for amplicon, amplicon_dict in json_dict.items():
+        site_methylation_totals = []
+        for site_index, site in enumerate(amplicon_dict['sites']):
+            methylated_count = 0
+            unmethylated_count = 0
+            unknown_count = 0
+            for pattern in amplicon_dict['patterns']:
+                methylation_code = pattern['methylation'][site_index]
+                pattern_count = pattern['count']
+                if methylation_code == 0:
+                    unmethylated_count += pattern_count
+                elif methylation_code == 1:
+                    methylated_count += pattern_count
+                else:
+                    unknown_count += pattern_count
+                total_count = float(unmethylated_count + methylated_count + unknown_count)
+            # pass the site counts as percentages of the total count
+            site_totals_dict = { 'site_unmethylated': unmethylated_count / total_count
+                               , 'site_methylated': methylated_count / total_count
+                               , 'site_unknown': unknown_count / total_count }
+            site_methylation_totals.append(site_totals_dict)
+        amplicon_dict['site_totals'] = site_methylation_totals
 
 
 def to_json_pattern(binary):
