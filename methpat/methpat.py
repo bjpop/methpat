@@ -12,10 +12,7 @@ DEFAULT_TITLE = 'Methylation Patterns'
 
 def parseArgs():
     parser = ArgumentParser(
-        description = 'Count methylation patterns in bismark output')
-    parser.add_argument(
-        '--dump_reads', metavar='FILE', type=str,
-        help='dump the read methylation information to FILE')
+        description = 'Summarise methylation patterns in bismark output, and generate visualisation.')
     parser.add_argument(
         'bismark_file', metavar='BISMARK_FILE', type=str,
         help='input bismark file')
@@ -177,15 +174,6 @@ def main():
     # sort the amplicon entries based on their coordinates
     for chr in amplicons:
         amplicons[chr].sort()
-
-    if args.dump_reads != None:
-        with open(args.dump_reads, 'w') as file:
-            read_list = []
-            for read_id, read in reads.items():
-                read_list.append((read.cpg_sites, read_id))
- 
-            for cpg_sites, id in sorted(read_list):
-                file.write('{0} {1}\n'.format(str(cpg_sites), id))
 
     # We want to associate each amplicon with all the different methylation patterns
     # which it contains, and have a counter for each one. The cpg_sites represents
