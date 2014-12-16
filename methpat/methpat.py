@@ -9,6 +9,9 @@ from visualise import make_html
 
 DEFAULT_WEBASSETS = 'package'
 DEFAULT_TITLE = 'Methylation Patterns'
+DEFAULT_COUNT_THRESH = 0
+DEFAULT_LOG_FILENAME = 'methpat.log'
+DEFAULT_HTML_FILENAME = 'methpat.html'
 
 def parseArgs():
     parser = ArgumentParser(
@@ -17,21 +20,21 @@ def parseArgs():
         'bismark_file', metavar='BISMARK_FILE', type=str,
         help='input bismark file')
     parser.add_argument(
-        '--count_thresh', metavar='THRESH', type=int, default=0,
-        help='only display methylation patterns with at least THRESH number of matching reads')
+        '--count_thresh', metavar='THRESH', type=int, default=DEFAULT_COUNT_THRESH,
+        help='only display methylation patterns with at least THRESH number of matching reads, defaults to "{}"'.format(DEFAULT_COUNT_THRESH))
     parser.add_argument(
         '--amplicons', metavar='AMPLICONS_FILE', type=str, required=True,
         help='file containing amplicon information in TSV format')
-    parser.add_argument('--logfile', metavar='FILENAME', type=str, required=True,
-        help='log progress in FILENAME')
-    parser.add_argument('--html', metavar='FILENAME', type=str, required=True,
-        help='save visualisation in html FILENAME')
+    parser.add_argument('--logfile', metavar='FILENAME', type=str, default=DEFAULT_LOG_FILENAME,
+        help='log progress in FILENAME, defaults to "{}"'.format(DEFAULT_LOG_FILENAME))
+    parser.add_argument('--html', metavar='FILENAME', type=str, default=DEFAULT_HTML_FILENAME,
+        help='save visualisation in html FILENAME defaults to "{}"'.format(DEFAULT_HTML_FILENAME))
     parser.add_argument('--webassets', choices=('package', 'local', 'online'), type=str,
         default=DEFAULT_WEBASSETS,
-        help='location of assets used by output visualisation web page, defaults to {}'.format(DEFAULT_WEBASSETS))
+        help='location of assets used by output visualisation web page, defaults to "{}"'.format(DEFAULT_WEBASSETS))
     parser.add_argument('--title', metavar='TITLE', type=str,
         default=DEFAULT_TITLE,
-        help='title of the output visualisation page, defaults to {}'.format(DEFAULT_TITLE))
+        help='title of the output visualisation page, defaults to "{}"'.format(DEFAULT_TITLE))
     return parser.parse_args()
 
 def encode_methyl(char):
