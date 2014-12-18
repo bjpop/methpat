@@ -350,17 +350,19 @@ function create_matrix(data) {
    var vertical_gap = 10;
    var axis_gap = 3;
    var label_font_size = cell_height * 0.67;
+   var colour_legend_translate_y = cell_height;
+   var legend_gap = 50;
 
    var img_width = num_patterns * cell_width + margin.left + margin.right + 
                    vertical_gap * 2 + site_totals_bar_width;
 
    if (histogram_visible == 'true') {
-      var img_height = pattern_numbers_shift + patterns_height + 
+      var img_height = colour_legend_translate_y + legend_gap + pattern_numbers_shift + patterns_height + 
                        horizontal_gap + histogram_height + margin.top +
                        margin.bottom;
    }
    else {
-      var img_height = pattern_numbers_shift + patterns_height + 
+      var img_height = colour_legend_translate_y + legend_gap + pattern_numbers_shift + patterns_height + 
                        margin.top + margin.bottom;
    }
 
@@ -395,6 +397,8 @@ function create_matrix(data) {
    var mag_scale = mag_scaler.domain(scale_domain).range(mag_range);
    var histo_scale = histo_scaler.domain(scale_domain).range(histo_range);
 
+   // This is the root of the whole diagram.
+
    var patterns_svg = amplicon_panel_body.append("svg")
       .attr("height", img_height)
       .attr("width", img_width)
@@ -417,28 +421,81 @@ function create_matrix(data) {
       saveSvgAsPng(document.getElementById(svg_unique_id), data.amplicon + ".png", 3);
    });
 
-   patterns_svg.append("text")
+
+   var colour_legend_group = patterns_svg.append("g")
+       .attr("transform", "translate(0," + colour_legend_translate_y + ")");
+
+   colour_legend_group.append("rect")
+       .attr("width", cell_width)
+       .attr("height", cell_height)
+       .attr("stroke-width", 0.5)
+       .attr("stroke", "black")
+       .attr("fill", methylated_colour)
+       .attr("transform", "translate(2, 0)");
+
+   colour_legend_group.append("text")
+      .text("methylated")
+      .attr("font-size", label_font_size)
+      .attr("font-family", "sans-serif")
+      .attr("transform", "translate(" + (cell_width + 5) + "," + (cell_height * 0.70) + ")");
+
+   var legend_gap_x = 100;
+
+   colour_legend_group.append("rect")
+       .attr("width", cell_width)
+       .attr("height", cell_height)
+       .attr("stroke-width", 0.5)
+       .attr("stroke", "black")
+       .attr("fill", unmethylated_colour)
+       .attr("transform", "translate(" + legend_gap_x + ", 0)");
+
+   colour_legend_group.append("text")
+      .text("unmethylated")
+      .attr("font-size", label_font_size)
+      .attr("font-family", "sans-serif")
+      .attr("transform", "translate(" + (legend_gap_x + cell_width + 5) + "," + (cell_height * 0.70) + ")");
+
+   colour_legend_group.append("rect")
+       .attr("width", cell_width)
+       .attr("height", cell_height)
+       .attr("stroke-width", 0.5)
+       .attr("stroke", "black")
+       .attr("fill", unknown_colour)
+       .attr("transform", "translate(" + (2 * legend_gap_x) + ", 0)");
+
+   colour_legend_group.append("text")
+      .text("unknown")
+      .attr("font-size", label_font_size)
+      .attr("font-family", "sans-serif")
+      .attr("transform", "translate(" + (2 * legend_gap_x + cell_width + 5) + "," + (cell_height * 0.70) + ")");
+
+   var top_labels_translate_y = colour_legend_translate_y + legend_gap;
+
+   var top_labels_group = patterns_svg.append("g")
+       .attr("transform", "translate(0," + top_labels_translate_y + ")");
+
+   top_labels_group.append("text")
       .text("position")
       .attr("font-size", label_font_size)
       .attr("font-family", "sans-serif")
-      .attr("transform", "translate(2, 10)");
+      .attr("transform", "translate(2, 0)");
 
-   patterns_svg.append("text")
+   top_labels_group.append("text")
       .text("proportion")
       .attr("font-size", label_font_size)
       .attr("font-family", "sans-serif")
-      .attr("transform", "translate(" + (margin.left + vertical_gap) + ",10)");
+      .attr("transform", "translate(" + (margin.left + vertical_gap) + ", 0)");
 
    var columns_shift_x = margin.left + vertical_gap + site_totals_bar_width + vertical_gap;
 
-   patterns_svg.append("text")
+   top_labels_group.append("text")
       .text("patterns")
       .attr("font-size", label_font_size)
       .attr("font-family", "sans-serif")
-      .attr("transform", "translate(" + columns_shift_x + ",10)");
+      .attr("transform", "translate(" + columns_shift_x + ", 0)");
 
    var under_labels_group = patterns_svg.append("g")
-       .attr("transform", "translate(0, 10)")
+       .attr("transform", "translate(0," + top_labels_translate_y + ")")
 
    var pattern_numbers_group_shift_x = margin.left + vertical_gap + 
                                        site_totals_bar_width + vertical_gap;
@@ -582,10 +639,12 @@ function create_matrix(data) {
 
     if (histogram_visible == 'true') {
 
+       var histogram_translate_y = pattern_numbers_shift + patterns_height + horizontal_gap;
+
        var histogram_group = under_labels_group.append("g")
           .attr("class", "histogram")
           .attr("transform", function(d, i)
-               { return "translate(0," + (pattern_numbers_shift + patterns_height + horizontal_gap) + ")"; });
+               { return "translate(0," + histogram_translate_y + ")"; });
     
        var histogram_bars_shift_x = margin.left + vertical_gap * 2 + site_totals_bar_width;
 
