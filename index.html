@@ -126,7 +126,7 @@ The file requires 7 columns which define:</p>
 <li>length of reverse PCR primer of amplicon/region of interest, number of base pairs to ignore from the end</li>
 </ol>
 
-<p>See the file <code>DemoData/AmpliconDetails.txt</code> for a working example.</p>
+<p>See the file <code>Examples/AmpliconDetails.txt</code> for a working example.</p>
 
 <h2>
 <a id="worked-example" class="anchor" href="#worked-example" aria-hidden="true"><span class="octicon octicon-link"></span></a>Worked example</h2>
@@ -137,6 +137,16 @@ The file requires 7 columns which define:</p>
 
 <pre><code>bismark -n 0 -q -o &lt;nameOfOutPutDirectory&gt; --bam --ambiguous --chunkmbs 10204 --non_directional /path/to/reference/genome &lt;fastq.file&gt;
 </code></pre>
+
+<p>Run bismark methylation extractor to create an output text file containing read DNA
+methylation pattern information:</p>
+
+<pre><code>bismark_methylation_extractor -s &lt;bismarkAlignedFileName.bam&gt;
+</code></pre>
+
+<p>This creates a series of text files prefixed with the methylation orientation and reference
+genome strand data was extracted from. For the purposes here, the files prefixed with CpG
+are then processed with methpat.</p>
       </section>
     </div>
 
