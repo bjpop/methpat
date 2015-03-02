@@ -147,6 +147,11 @@ methylation pattern information:</p>
 <p>This creates a series of text files prefixed with the methylation orientation and reference
 genome strand data was extracted from. For the purposes here, the files prefixed with CpG
 are then processed with methpat.</p>
+
+<p>For each bismark output file with a <code>bismark.txt</code> suffix, run the following command to generate the methpat output:</p>
+
+<pre><code>methpat --dump_reads reads.dump --count_thresh 1 --amplions example_amplicons.txt --logfile example.log --html example_vis.html --webassets local example_bismark.txt &gt; example_methpat.txt
+</code></pre>
       </section>
     </div>
 
