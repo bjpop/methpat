@@ -28,7 +28,7 @@ def web_assets(args):
         css_asset_paths = [ 'http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css' ]
     else: #args.webassets == 'local':
         js_asset_paths = js_asset_names
-        js_asset_paths = css_asset_names
+        css_asset_paths = css_asset_names
     js_asset_links = [ script_link.format(path) for path in js_asset_paths ]
     css_asset_links = [ css_link.format(path) for path in css_asset_paths ]
     return '\n'.join(css_asset_links + js_asset_links)
