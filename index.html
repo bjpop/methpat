@@ -108,11 +108,11 @@ optional arguments:
 
 <ul>
 <li>
-<code>package</code>: fgdfg</li>
+<code>package</code>: web asset files are found in the directory where methpat is installed on your computer. These files are automatically set up when methpat is installed. You do not need to do any extra steps to make this work, therefore it is the default behaviour for methpat. This mode is useful for viewing the HTML visualisation on the same computer where methpat is installed. It is not useful for sharing the visualisation with others or publishing on the internet as a web page.</li>
 <li>
-<code>local</code>: lkfdjglfkgjdf</li>
+<code>local</code>: web asset files are found in the directory containing the HTML visualisation file - they must be copied there manually by the user. The web asset files can be found in the <code>methpat/data</code> sub-directory of the source code repository. This mode is useful for sharing the files with others who wish to view the HTML visualisation without an internet connection.</li>
 <li>
-<code>online</code>: lfdkjgldkfgj</li>
+<code>online</code>: The web assets are stored on the internet. This mode is useful for sharing the visualisation with others or publishing on the internet as a web page.</li>
 </ul>
 </li>
 <li>
@@ -158,7 +158,7 @@ methylation pattern information:</p>
 genome strand data was extracted from. For the purposes here, the files prefixed with CpG
 are then processed with methpat.</p>
 
-<p>For each bismark output file with a <code>bismark.txt</code> suffix, run the following command to generate the methpat output. The example below uses the data files in the examples directory of the methpat source package:</p>
+<p>For each bismark output file with a <code>bismark.txt</code> suffix, run the following command to generate the methpat output. The example below uses the data files in the <code>examples</code> directory of the methpat source package:</p>
 
 <pre><code>methpat --amplicons example_amplicons.txt example1_bismark.txt &gt; example_methpat.txt
 </code></pre>
