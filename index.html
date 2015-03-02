@@ -126,7 +126,17 @@ The file requires 7 columns which define:</p>
 <li>length of reverse PCR primer of amplicon/region of interest, number of base pairs to ignore from the end</li>
 </ol>
 
-<p>See the file <em>DemoData/AmpliconDetails.txt</em> for a working example.</p>
+<p>See the file <code>DemoData/AmpliconDetails.txt</code> for a working example.</p>
+
+<h2>
+<a id="worked-example" class="anchor" href="#worked-example" aria-hidden="true"><span class="octicon octicon-link"></span></a>Worked example</h2>
+
+<p>Run Bismark as per instructions to prepare the reference genome as outlined in the <a href="http://www.bioinformatics.babraham.ac.uk/projects/bismark/Bismark_User_Guide.pdf">bismark manual</a>.</p>
+
+<p>Run Bismark to align raw read files (fastq) as below with no mismatches:</p>
+
+<pre><code>bismark -n 0 -q -o &lt;nameOfOutPutDirectory&gt; --bam --ambiguous --chunkmbs 10204 --non_directional /path/to/reference/genome &lt;fastq.file&gt;
+</code></pre>
       </section>
     </div>
 
