@@ -62,31 +62,31 @@
 <h2>
 <a id="usage" class="anchor" href="#usage" aria-hidden="true"><span class="octicon octicon-link"></span></a>Usage</h2>
 
-<pre><code>usage: methpat [-h] [--dump_reads FILE] [--count_thresh THRESH] --amplicons
-               AMPLICONS_FILE --logfile FILENAME --html FILENAME
-               [--webassets {package,local,online}] [--title TITLE]
-               BISMARK_FILE
+<pre><code>methpat [-h] [--count_thresh THRESH] --amplicons AMPLICONS_FILE
+        [--logfile FILENAME] [--html FILENAME]
+        [--webassets {package,local,online}] [--title TITLE]
+        BISMARK_FILE
 
-Count methylation patterns in bismark output
+Summarise methylation patterns in bismark output, and generate visualisation.
 
 positional arguments:
   BISMARK_FILE          input bismark file
 
 optional arguments:
   -h, --help            show this help message and exit
-  --dump_reads FILE     dump the read methylation information to FILE
   --count_thresh THRESH
                         only display methylation patterns with at least THRESH
-                        number of matching reads
+                        number of matching reads, defaults to "0"
   --amplicons AMPLICONS_FILE
                         file containing amplicon information in TSV format
-  --logfile FILENAME    log progress in FILENAME
-  --html FILENAME       save visualisation in html FILENAME
+  --logfile FILENAME    log progress in FILENAME, defaults to "methpat.log"
+  --html FILENAME       save visualisation in html FILENAME defaults to
+                        "methpat.html"
   --webassets {package,local,online}
                         location of assets used by output visualisation web
-                        page, defaults to package
+                        page, defaults to "package"
   --title TITLE         title of the output visualisation page, defaults to
-                        Methylation Patterns
+                        "Methylation Patterns"
 </code></pre>
 
 <h2>
@@ -94,19 +94,29 @@ optional arguments:
 
 <ul>
 <li>
-<strong>--dump_reads FILE</strong>: Dump the read methylation information to FILE.</li>
+<code>--dump_reads FILE</code>: Dump the read methylation information to FILE. Mainly useful for debugging methpat behaviour.</li>
 <li>
-<strong>--count_thresh THRESH</strong>: Only display methylation patterns with at least THRESH number of matching reads.</li>
+<code>--count_thresh THRESH</code>: Only display methylation patterns with at least THRESH number of matching reads.</li>
 <li>
-<strong>--amplicons AMPLICONS_FILE</strong>: Input file containing amplicon information in TSV format.</li>
+<code>--amplicons AMPLICONS_FILE</code>: Input file containing amplicon information in TSV format (described below).</li>
 <li>
-<strong>--logfile FILENAME</strong>: Output log progress in FILENAME.</li>
+<code>--logfile FILENAME</code>: Output log progress in FILENAME.</li>
 <li>
-<strong>--html FILENAME</strong>: Save visualisation in html FILENAME.</li>
+<code>--html FILENAME</code>: Save visualisation in html FILENAME.</li>
 <li>
-<strong>--webassets {package,local,online}</strong>: Location of assets used by output visualisation web page, defaults to package.</li>
+<code>--webassets {package,local,online}</code>: Location of assets used by output visualisation web page. Web assets are files needed by the HTML visualisation (javascript and CSS files). Each option has the following meaning:
+
+<ul>
 <li>
-<strong>--title TITLE</strong>: Title of the output visualisation page, defaults to "Methylation Patterns".</li>
+<code>package</code>: fgdfg</li>
+<li>
+<code>local</code>: lkfdjglfkgjdf</li>
+<li>
+<code>online</code>: lfdkjgldkfgj</li>
+</ul>
+</li>
+<li>
+<code>--title TITLE</code>: Title of the output visualisation page, defaults to "Methylation Patterns".</li>
 </ul>
 
 <h2>
