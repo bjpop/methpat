@@ -150,8 +150,19 @@ are then processed with methpat.</p>
 
 <p>For each bismark output file with a <code>bismark.txt</code> suffix, run the following command to generate the methpat output:</p>
 
-<pre><code>methpat --dump_reads reads.dump --count_thresh 1 --amplions example_amplicons.txt --logfile example.log --html example_vis.html --webassets local example_bismark.txt &gt; example_methpat.txt
+<pre><code>methpat --amplicons example_amplicons.txt --logfile example.log --html example_vis.html --webassets local example_bismark.txt &gt; example_methpat.txt
 </code></pre>
+
+<p>The above example generates three output files:</p>
+
+<ol>
+<li>
+<code>methpat.txt</code>: summarises the read count and DNA methylation pattern information for all amplicons/regions of interest listed in the amplicons file.</li>
+<li>
+<code>example.log</code>: log information about the progress of the methpat program (useful for debugging purposes if things don't work as you expect, also records the command line that was used just in case you want to run the exact same command again).</li>
+<li>
+<code>example_vis.html</code>: interactive HTML visualisation of the methylation patterns for each amplicon/region of interest. This is best viewed in Chrome, Firefox and Safari (but not Internet Explorer).</li>
+</ol>
       </section>
     </div>
 
