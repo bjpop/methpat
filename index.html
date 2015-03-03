@@ -160,14 +160,14 @@ are then processed with methpat.</p>
 
 <p>For each bismark output file with a <code>bismark.txt</code> suffix, run the following command to generate the methpat output. The example below uses the data files in the <code>examples</code> directory of the methpat source package:</p>
 
-<pre><code>methpat --amplicons example_amplicons.txt example1_bismark.txt &gt; example_methpat.txt
+<pre><code>methpat --amplicons example_amplicons.txt example1_bismark.txt &gt; example_methpat.tsv
 </code></pre>
 
 <p>The above example generates three output files:</p>
 
 <ol>
 <li>
-<code>examle_methpat.txt</code>: summarises the read count and DNA methylation pattern information for all amplicons/regions of interest listed in the amplicons file.</li>
+<code>example_methpat.tsv</code>: summarises the read count and DNA methylation pattern information for all amplicons/regions of interest listed in the amplicons file.</li>
 <li>
 <code>methpat.log</code>: log information about the progress of the methpat program (useful for debugging purposes if things don't work as you expect, also records the command line that was used just in case you want to run the exact same command again).</li>
 <li>
@@ -175,6 +175,18 @@ are then processed with methpat.</p>
 </ol>
 
 <p>Here is an <a href="http://htmlpreview.github.io/?https://github.com/bjpop/methpat/blob/master/examples/methpat.html">example methpat visualisation</a> which results from the command above (though it uses the online webassets option instead of the package option).</p>
+
+<h2>
+<a id="format-of-the-methylation-pattern-counts-output-text-file" class="anchor" href="#format-of-the-methylation-pattern-counts-output-text-file" aria-hidden="true"><span class="octicon octicon-link"></span></a>Format of the methylation pattern counts output text file</h2>
+
+<p>One of the main outputs of methpat is a tab-delimited text file which summarises the counts for each methylation pattern over all amplicons from the input. In the example above this output file is called <code>example_methpat.txt</code>. The file has seven columns containing the following information:
+1. amplicon ID: the identifier of an amplicon from the input amplicons file.
+2. chr: the chromosome containing the amplicon
+3. Base position start/CpG start: the coordinate of the first CpG site in the amplicon.
+4. Base position end/CpG end: the coordinate of the last CpG site in the amplicon.
+5. Methylation pattern: an encoding of the methylation status of each CpG site in the amplicon. The code "1" means that the site is methylated. The code "0" means the site is unmethylated. The code "-" means that the methylation status of the site is unknown. An example is "11-011-0-" for an amplicon with nine CpG sites, four of which are methylated, three are unmethylated and two are unknown.
+6. count: the number of times this particular methylation pattern for the amplicon is seen in the Bismark file.
+7. raw cpg sites: the methylation status of each CpG site for this pattern. It is a list of comma-separated pairs in the form "(CpG coordinate, methylation status)". Coordinates with unknown methylation status are not shown in the list.</p>
       </section>
     </div>
 
