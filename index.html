@@ -191,11 +191,11 @@ are then processed with methpat.</p>
 <li>
 <code>Base position end/CpG end</code>: the coordinate of the last CpG site in the amplicon.</li>
 <li>
-<code>Methylation pattern</code>: an encoding of the methylation status of each CpG site in the amplicon. The code "1" means that the site is methylated. The code "0" means the site is unmethylated. The code "-" means that the methylation status of the site is unknown. An example is "11-011-0-" for an amplicon with nine CpG sites, four of which are methylated, three are unmethylated and two are unknown.</li>
+<code>Methylation pattern</code>: an encoding of the methylation state of each CpG site in the amplicon. The code "1" means that the site is methylated. The code "0" means the site is unmethylated. The code "-" means that the methylation state of the site is unknown. An example is "11-011-0-" for an amplicon with nine CpG sites, four of which are methylated, three are unmethylated and two are unknown.</li>
 <li>
 <code>count</code>: the number of times this particular methylation pattern for the amplicon is seen in the Bismark file.</li>
 <li>
-<code>raw cpg sites</code>: the methylation status of each CpG site for this pattern. It is a list of comma-separated pairs in the form "(CpG coordinate, methylation status)". Coordinates with unknown methylation status are not shown in the list.</li>
+<code>raw cpg sites</code>: the methylation state of each CpG site for this pattern. It is a list of comma-separated pairs in the form "(CpG coordinate, methylation state)". Coordinates with unknown methylation state are not shown in the list.</li>
 </ol>
 
 <p>See the file <a href="https://raw.githubusercontent.com/bjpop/methpat/master/examples/example_methpat.tsv">examples/methpat.tsv</a> which contains the methylation counts from the above worked example.</p>
@@ -203,17 +203,17 @@ are then processed with methpat.</p>
 <h2>
 <a id="visualisation" class="anchor" href="#visualisation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Visualisation</h2>
 
-<p>Methpat outputs a visualisation of the methylation patterns for each amplicon in the input in a HTML file. By default the file is called <code>methpat.html</code> but you can override this with another name using the <code>--html</code> command line option.</p>
+<p>Methpat outputs a HTML visualisation of the methylation patterns for each amplicon in the input. By default the file is called <code>methpat.html</code> but you can override this with another name using the <code>--html</code> command line argument.</p>
 
-<p>You can view the visualisation in a web browser (any modern web browser will do, though it hasn't been tested thoroughly with Microsoft Explorer).</p>
+<p>You can view the visualisation in a web browser (though it is probably best to use Chrome, Firefox or Safari instead of Microsoft Explorer).</p>
 
 <p>Each amplicon in the input appears in the visualisation. The order of the amplicons in the visualisation is the same as the input file (if you want to change the order you must edit the input file and re-run methpat). </p>
 
-<p>A screenshot is shown below for the DAPK1_p1_106 amplicon from the worked example - the red letters are annotations which are referred to in the explanation below the image.</p>
+<p>A screenshot is shown below for the DAPK1_p1_106 amplicon from the worked example. The red letters are annotations which have been added for the purpose of this document, they are referred to in the explanation below the image.</p>
 
 <p><img src="images/example_methpat_vis.png" alt="Screen grab of part of the methpat visualisation for the worked example"></p>
 
-<p>The main part of the visualisation (A) shows all the methylation patterns for the amplicon. Each pattern is displayed as a column of coloured boxes. By default a yellow box indicates a methylated CpG site, a red box indicates an unmethylated CpG site, and a blue box indicates a CpG site whose methylation status is unknown. By default the patterns are sorted left-to-right in order of frequency of occurrence. The columns are sequentially numbered. The numbers are merely ordinals that can be used to refer to columns, which can be useful when discussing a diagram within a manuscript. In the image above the most frequent pattern is methylated in all CpG sites (all boxes are yellow in column number 1).</p>
+<p>The main part of the visualisation (A) shows all the methylation patterns for the amplicon. Each pattern is displayed as a column of coloured boxes. By default a yellow box indicates a methylated CpG site, a red box indicates an unmethylated CpG site, and a blue box indicates a CpG site whose methylation state is unknown. By default the patterns are sorted left-to-right in order of frequency of occurrence. The columns are sequentially numbered. The numbers are merely ordinals that can be used to refer to columns, which can be useful when discussing a diagram within a manuscript. In the image above the most frequent pattern is methylated in all CpG sites (all boxes are yellow in column number 1).</p>
 
 <p>The coordinates of each CpG site are listed on the left side of the digram (C). By default they are shown in ascending order from top-to-bottom, however this can be changed to descending order in the page settings (discussed below).</p>
 
