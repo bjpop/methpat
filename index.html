@@ -179,14 +179,17 @@ are then processed with methpat.</p>
 <h2>
 <a id="format-of-the-methylation-pattern-counts-output-text-file" class="anchor" href="#format-of-the-methylation-pattern-counts-output-text-file" aria-hidden="true"><span class="octicon octicon-link"></span></a>Format of the methylation pattern counts output text file</h2>
 
-<p>One of the main outputs of methpat is a tab-delimited text file which summarises the counts for each methylation pattern over all amplicons from the input. In the example above this output file is called <code>example_methpat.txt</code>. The file has seven columns containing the following information:
-1. amplicon ID: the identifier of an amplicon from the input amplicons file.
-2. chr: the chromosome containing the amplicon
-3. Base position start/CpG start: the coordinate of the first CpG site in the amplicon.
-4. Base position end/CpG end: the coordinate of the last CpG site in the amplicon.
-5. Methylation pattern: an encoding of the methylation status of each CpG site in the amplicon. The code "1" means that the site is methylated. The code "0" means the site is unmethylated. The code "-" means that the methylation status of the site is unknown. An example is "11-011-0-" for an amplicon with nine CpG sites, four of which are methylated, three are unmethylated and two are unknown.
-6. count: the number of times this particular methylation pattern for the amplicon is seen in the Bismark file.
-7. raw cpg sites: the methylation status of each CpG site for this pattern. It is a list of comma-separated pairs in the form "(CpG coordinate, methylation status)". Coordinates with unknown methylation status are not shown in the list.</p>
+<p>One of the main outputs of methpat is a tab-delimited text file which summarises the counts for each methylation pattern over all amplicons from the input. In the example above this output file is called <code>example_methpat.txt</code>. The file has seven columns containing the following information:</p>
+
+<ol>
+<li>amplicon ID: the identifier of an amplicon from the input amplicons file.</li>
+<li>chr: the chromosome containing the amplicon</li>
+<li>Base position start/CpG start: the coordinate of the first CpG site in the amplicon.</li>
+<li>Base position end/CpG end: the coordinate of the last CpG site in the amplicon.</li>
+<li>Methylation pattern: an encoding of the methylation status of each CpG site in the amplicon. The code "1" means that the site is methylated. The code "0" means the site is unmethylated. The code "-" means that the methylation status of the site is unknown. An example is "11-011-0-" for an amplicon with nine CpG sites, four of which are methylated, three are unmethylated and two are unknown.</li>
+<li>count: the number of times this particular methylation pattern for the amplicon is seen in the Bismark file.</li>
+<li>raw cpg sites: the methylation status of each CpG site for this pattern. It is a list of comma-separated pairs in the form "(CpG coordinate, methylation status)". Coordinates with unknown methylation status are not shown in the list.</li>
+</ol>
       </section>
     </div>
 
