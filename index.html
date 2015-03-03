@@ -108,7 +108,7 @@ optional arguments:
 
 <ul>
 <li>
-<code>package</code>: web asset files are found in the directory where methpat is installed on your computer. These files are automatically set up when methpat is installed. You do not need to do any extra steps to make this work, therefore it is the default behaviour for methpat. This mode is useful for viewing the HTML visualisation on the same computer where methpat is installed. It is not useful for sharing the visualisation with others or publishing on the internet as a web page.</li>
+<code>package</code>: web asset files are found in the directory where methpat is installed on your computer. These files are automatically set up when methpat is installed. You do not need to do any extra steps to make this work, and it does not require a network connection, therefore it is the default behaviour for methpat. This mode is useful for viewing the HTML visualisation on the same computer where methpat is installed. It is not useful for sharing the visualisation with others or publishing on the internet as a web page.</li>
 <li>
 <code>local</code>: web asset files are found in the directory containing the HTML visualisation file - they must be copied there manually by the user. The web asset files can be found in the <code>methpat/data</code> sub-directory of the source code repository. This mode is useful for sharing the files with others who wish to view the HTML visualisation without an internet connection.</li>
 <li>
@@ -122,7 +122,7 @@ optional arguments:
 <h2>
 <a id="input-amplicons-file-format" class="anchor" href="#input-amplicons-file-format" aria-hidden="true"><span class="octicon octicon-link"></span></a>Input amplicons file format</h2>
 
-<p>The amplicons or regions of interest are defined by this tab-delimited text file. The order
+<p>The amplicons (or regions of interest) are defined by this tab-delimited text file. The order
 of regions listed in this file will correspond to the order of display in the html file generated.
 The file requires 7 columns which define:</p>
 
@@ -213,11 +213,11 @@ are then processed with methpat.</p>
 
 <p><img src="images/example_methpat_vis.png" alt="Screen grab of part of the methpat visualisation for the worked example"></p>
 
-<p>The main part of the visualisation (A) shows all the methylation patterns for the amplicon. Each pattern is displayed as a column of coloured boxes. By default a yellow box indicates a methylated CpG site, a red box indicates an unmethylated CpG site, and a blue box indicates a CpG site whose methylation state is unknown. By default the patterns are sorted left-to-right in order of frequency of occurrence. The columns are sequentially numbered. The numbers are merely ordinals that can be used to refer to columns, which can be useful when discussing a diagram within a manuscript. In the image above the most frequent pattern is methylated in all CpG sites (all boxes are yellow in column number 1).</p>
+<p>The main part of the visualisation (A) shows all the methylation patterns for the amplicon. Each pattern is displayed as a vertical column of coloured boxes. By default a yellow box indicates a methylated CpG site, a red box indicates an unmethylated CpG site, and a blue box indicates a CpG site whose methylation state is unknown. By default the patterns are sorted left-to-right in order of frequency of occurrence. The columns are sequentially numbered. The numbers are merely ordinals that can be used to refer to columns, which can be useful when discussing a diagram within a manuscript. In the image above the most frequent pattern is methylated in all CpG sites (all boxes are yellow in column number 1).</p>
 
 <p>The coordinates of each CpG site are listed on the left side of the digram (C). By default they are shown in ascending order from top-to-bottom, however this can be changed to descending order.</p>
 
-<p>A frequency histogram of each pattern is shown as a bar chart below the patterns (B). By default the vertical axis of the graph is raw read counts for each pattern, however this can be changed to a percentage of total reads. The vertical scale is linear by default but it can be changed to log scale.</p>
+<p>A frequency histogram of each pattern is shown as a bar chart below the patterns (B). By default the vertical axis of the graph shows raw read counts for each pattern, however this can be changed to a percentage of total reads. The vertical scale is linear by default but it can be changed to log scale.</p>
 
 <p>The proportion of methylated, unmethylated and unknown methylation for each CpG site across all reads for a given amplicon are shown in coloured rectangles to the left of the patterns (D). In the image above the first CpG site (90112806) is predominantly methylated (mostly yellow), with a small amount of unmethylated sites (red).</p>
 
