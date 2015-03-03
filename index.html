@@ -221,9 +221,44 @@ are then processed with methpat.</p>
 
 <p>The proportion of methylated, unmethylated and unknown methylation for each CpG site across all reads for a given amplicon are shown in coloured rectangles to the left of the patterns (D). In the image above the first CpG site (90112806) is predominantly methylated (mostly yellow), which a small amount of unmethylated sites (red).</p>
 
-<p>The green button at the bottom of the diagram (E) allows you to save a copy of the diagram to file in PNG format.</p>
+<p>The green button at the bottom of the diagram (E) allows you to save a copy of the diagram to file in PNG format to your local computer. By default the saved file will be named after the amplicon with a ".png" suffix.</p>
+
+<p>Many aspects of the visualisation can be changed in the "Settings" tab. A screen shot of the settings tab is shown below:</p>
 
 <p><img src="images/methpat_vis_settings.png" alt="Screen grab of part of the methpat visualisation settings"></p>
+
+<p>The setting options are described below:</p>
+
+<ul>
+<li>Methylation patterns:
+
+<ul>
+<li>Cell size (pixels): The side-length in pixels of the coloured squares used to show the methylation patterns. Default is 15 pixels.</li>
+<li>Scale pattern intensity: If set to "true" the colour intensity of each methylation pattern will be scaled to indicate its frequency. More frequent patterns are shown brighter and less frequent patterns are shown darker. This is set to "false" by default.</li>
+<li>Methylation site direction: The vertical ordering of the CpG sites (top-to-bottom). The ordering can be "ascending" or "descending".</li>
+<li>Sort methylation patterns by: The ordering of the methylation patterns across the screen. The ordering can be by "epiallele frequency" (pattern frequency count) or by "degree of methylation".</li>
+<li>Sort direction (left to right): The ordering of methylation patterns across the screen in left-to-right direction. The ordering can be "ascending" or "descending".</li>
+</ul>
+</li>
+<li>Histogram:
+
+<ul>
+<li>Histogram scaling: How to display the vertical scale of the histogram. The scale can be "linear" or "log".</li>
+<li>Histogram visible: Should the histogram be displayed? If set to "true" then the histogram will be displayed. If set to "false" the histogram will not be displayed.</li>
+<li>Histogram height (pixels): The maximum vertical height of the histogram in pixels. Defaults to 100 pixels.</li>
+<li>Histogram units: The units of the vertical scale on the histogram. The units can be "absolute" or "relative". The absolute scale shows raw counts. The relative scale shows the percentage of all reads for the amplicon.</li>
+</ul>
+</li>
+<li>Colour:
+
+<ul>
+<li>Methylated site: The colour to use for a methylated site.</li>
+<li>Unmethylated site: The colour to use for an unmethylated site.</li>
+<li>Unknown site: The colour to use for a CpG site with unknown methylation state.</li>
+<li>Histogram: The colour of the bars in the histogram.</li>
+</ul>
+</li>
+</ul>
       </section>
     </div>
 
