@@ -155,17 +155,17 @@ textarea {
                     <form role="form">
                         <div class="form-group">
                             <label for="methylated_colour">Methylated site</label>
-                            <input type="color" id="methylated_colour" class="form-control" value="#fffb00">
+                            <input type="color" id="methylated_colour" class="form-control" value="#FFFF00">
                         </div> 
 
                         <div class="form-group">
                             <label for="unmethylated_colour">Unmethylated site</label>
-                            <input type="color" id="unmethylated_colour" class="form-control" value="#f90000">
+                            <input type="color" id="unmethylated_colour" class="form-control" value="#0000FF">
                         </div> 
 
                         <div class="form-group">
                             <label for="unknown_colour">Unknown site</label>
-                            <input type="color" id="unknown_colour" class="form-control" value="#0000f9">
+                            <input type="color" id="unknown_colour" class="form-control" value="#AAAAAA">
                         </div> 
                         <div class="form-group">
                             <label for="histogram_colour">Histogram</label>
