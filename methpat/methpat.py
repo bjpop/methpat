@@ -6,6 +6,7 @@ import sys
 from argparse import ArgumentParser
 import logging
 from visualise import make_html
+from collections import namedtuple
 
 DEFAULT_WEBASSETS = 'package'
 DEFAULT_TITLE = 'Methylation Patterns'
@@ -35,14 +36,22 @@ def parseArgs():
     parser.add_argument('--title', metavar='TITLE', type=str,
         default=DEFAULT_TITLE,
         help='title of the output visualisation page, defaults to "{}"'.format(DEFAULT_TITLE))
+    parser.add_argument('--dump_pattern_reads', type=str, metavar='FILENAME', required=False,
+        help='output read IDs for each methylation pattern to FILENAME')
     return parser.parse_args()
 
+# Bismark uses different codes to indicate the methylation state of
+# cytosines:
+# z/Z for CpG
+# x/X for CHG
+# h/H for CHH
+# u/U for unknown context 
 def encode_methyl(char):
     "convert a methylation state to a binary digit"
     try:
-        return { 'z' : 0, 'Z' : 1 }[char]
+        return { 'z' : 0, 'Z' : 1, 'x': 0, 'X': 1, 'h': 0, 'H': 1, 'u': 0, 'U': 0 }[char]
     except KeyError:
-        exit('unexpected methylation state ' + char)
+        exit('Methpat: unexpected methylation state ' + char)
 
 def pretty_state(unique_sites, cpg_sites):
     unique_index = 0
@@ -84,12 +93,12 @@ class CPG_site(object):
     def __hash__(self):
         return hash((self.pos, self.methyl_state))
 
-class Read(object):
-    def __init__(self, chr, cpg_sites):
-        self.chr = chr
-        # cpg_sites are encoded and lists of pairs of (pos, methyl)
-        # this is a methylation pattern
-        self.cpg_sites = cpg_sites
+# cpg_sites are encoded and lists of pairs of (pos, methyl)
+# this is a methylation pattern
+Read = namedtuple("Read", ["chr", "cpg_sites"])
+
+# This is the information which we generate as the output and ultimately visualise
+PatternInfo = namedtuple("PatternInfo", ['amplicon', 'chr', 'start', 'end', 'binary', 'count', 'binary_raw', 'read_ids'])
 
 class Amplicon(object):
     def __init__(self, start, end, start_trim, end_trim, name):
@@ -181,7 +190,7 @@ def main():
     # We want to associate each amplicon with all the different methylation patterns
     # which it contains, and have a counter for each one. The cpg_sites represents
     # a particular methylation pattern.
-    # amplicon -> cpg_sites -> count
+    # amplicon -> cpg_sites -> [read_id] 
     methyl_state_counts = {}
 
     for read_id, read in reads.items():
@@ -191,17 +200,17 @@ def main():
            cpg_sites = sorted(read.cpg_sites)
 
            for amplicon in amplicons[read.chr]:
+               # get a list of cpg sites that lie within the amplicon (if any)
                intersection = tuple(intesect_cpg_sites_amplicon(cpg_sites, amplicon))
                if intersection:
-                   #methyl_states.append(amplicon.name, tuple(cpg_sites))
                    if amplicon.name in methyl_state_counts:
                        this_amplicon_info = methyl_state_counts[amplicon.name]
 	               if intersection in this_amplicon_info:
-		           this_amplicon_info[intersection] += 1
+		           this_amplicon_info[intersection].append(read_id)
 	               else:
-		           this_amplicon_info[intersection] = 1
+		           this_amplicon_info[intersection] = [read_id]
 	           else:
-	               methyl_state_counts[amplicon.name] = { intersection : 1 }
+	               methyl_state_counts[amplicon.name] = { intersection : [read_id] }
 
                    # stop searching for an amplicon if we find a non-empty intersection
                    # we assume a read intersects only one amplicon
@@ -209,6 +218,7 @@ def main():
 
         if not intersection:
 	    logging.info("read {0} in chromosome {1} not in any amplicon".format(read_id, read.chr)) 
+
 
     # map each amplicon name to a list of its unique methylation sites (chr positions)
     amplicon_unique_sites = {}
@@ -222,14 +232,25 @@ def main():
             # sort the unique CPG sites into ascending order of position
             unique_sites = sorted(unique_sites)
             amplicon_unique_sites[amplicon] = unique_sites
-            start_pos = unique_sites[0]
-            end_pos = unique_sites[-1]
-            for cpg_sites, count in methyl_state_counts[amplicon].items():
+            start = unique_sites[0]
+            end = unique_sites[-1]
+            for cpg_sites, read_ids in methyl_state_counts[amplicon].items():
+                count = len(read_ids)
                 if count >= args.count_thresh:
                     binary = pretty_state(unique_sites, cpg_sites)
                     binary_raw = str(cpg_sites)
                     chr = amplicon_chromosomes[amplicon]
-                    result.append((amplicon, chr, start_pos, end_pos, binary, count, binary_raw))
+                    pattern_info = PatternInfo(amplicon, chr, start, end, binary, count, binary_raw, read_ids)
+                    result.append(pattern_info)
+
+    # For each pattern in each amplicon dump the reads IDs which are associated with that pattern
+    if args.dump_pattern_reads:
+        with open(args.dump_pattern_reads, 'w') as dump_pattern_reads_file:
+            dump_pattern_reads_file.write('\t'.join(['Amplicon', 'Chrom', 'Start', 'End', 'Pattern', 'Read IDs']) + '\n')
+            for info in sorted(result): 
+                read_str = '\t'.join(info.read_ids)
+                dump_pattern_reads_file.write('\t'.join([info.amplicon, info.chr, str(info.start),
+                    str(info.end), info.binary, read_str]) + '\n')
 
     print('\t'.join(["<amplicon ID>", "<chr>", "<Base position start/CpG start>",
           "<Base position end/CpG end>", "<Methylation pattern>", "<count>", "<raw cpg sites>"]))
@@ -239,25 +260,25 @@ def main():
     # unique number for each amplicon
     unique_id = 0
 
-    for amplicon, chr, start, end, binary, count, binary_raw in sorted(result):
-        print('\t'.join([amplicon, chr, str(start), str(end), binary, str(count), binary_raw]))
-        pattern_dict = { 'count': count, 'methylation': to_json_pattern(binary) }
-        if amplicon in json_dict:
-            amplicon_dict = json_dict[amplicon]
+    for info in sorted(result):
+        print('\t'.join([info.amplicon, info.chr, str(info.start), str(info.end), info.binary, str(info.count), info.binary_raw]))
+        pattern_dict = { 'count': info.count, 'methylation': to_json_pattern(info.binary) }
+        if info.amplicon in json_dict:
+            amplicon_dict = json_dict[info.amplicon]
             amplicon_dict['patterns'].append(pattern_dict)
         else:
             try:
-                unique_sites = amplicon_unique_sites[amplicon]
+                unique_sites = amplicon_unique_sites[info.amplicon]
             except KeyError:
                 unique_sites = []
             amplicon_dict = { 'unique_id': unique_id
-                            , 'amplicon': amplicon
+                            , 'amplicon': info.amplicon
                             , 'sites': unique_sites   # CPG sites (chrom positions)
-                            , 'chr': chr
-                            , 'start': start
-                            , 'end': end
+                            , 'chr': info.chr
+                            , 'start': info.start
+                            , 'end': info.end
                             , 'patterns': [pattern_dict] }
-            json_dict[amplicon] = amplicon_dict
+            json_dict[info.amplicon] = amplicon_dict
             unique_id += 1
 
     make_site_totals(json_dict)
