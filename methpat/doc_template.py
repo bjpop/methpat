@@ -352,9 +352,11 @@ function create_matrix(data) {
    var label_font_size = cell_height * 0.67;
    var colour_legend_translate_y = cell_height;
    var legend_gap = 50;
+   var min_img_width = 500; // minimum image width
 
    var img_width = num_patterns * cell_width + margin.left + margin.right + 
                    vertical_gap * 2 + site_totals_bar_width;
+   img_width = Math.max(min_img_width, img_width);
 
    if (histogram_visible == 'true') {
       var img_height = colour_legend_translate_y + legend_gap + pattern_numbers_shift + patterns_height + 
