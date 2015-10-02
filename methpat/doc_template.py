@@ -112,6 +112,16 @@ textarea {
                             </select>
                         </div> 
 
+                        <div class="form-group">
+                            <label for="pattern_read_threshold">Pattern read threshold (percent)</label>
+                            <input id="pattern_read_threshold" class="form-control" type="number" min="0" max="100" value="0">
+                        </div> 
+
+                        <div class="form-group">
+                            <label for="png_save_scale">PNG file save scale factor</label>
+                            <input id="png_save_scale" class="form-control" type="number" min="1" value="1">
+                        </div> 
+
                     </form>
                 </div> <!-- col -->
 
@@ -188,6 +198,7 @@ textarea {
                 
 <script>
 
+var amplicon_names = %s;
 var scaling = 'log';
 
 $('#redraw').click(function () {
@@ -286,6 +297,7 @@ function create_matrix(data) {
    var methylation_site_direction = $('#methylation_site_direction').val();
    var pattern_sort_by = $('#pattern_sort_by').val();
    var pattern_sort_direction = $('#pattern_sort_direction').val();
+   var pattern_read_threshold = parseFloat($('#pattern_read_threshold').val()); 
    var svg_unique_id = "svg" + unique_id;
 
    var sites = data.sites;
@@ -337,6 +349,20 @@ function create_matrix(data) {
       }
    } 
 
+
+   // only draw patterns with percent reads >= to user specified threshold
+   var drawn_patterns = [];
+   for (i = 0; i < num_patterns; i++)
+   {
+      if (((patterns[i].count / total_count) * 100) >= pattern_read_threshold)
+      {
+          drawn_patterns.push(patterns[i]);
+      }
+   } 
+
+   patterns = drawn_patterns;
+   var num_patterns = patterns.length;
+
    var site_totals_bar_width = 50; // width of the proportion bar on the left of the pattern columns
    var cell_width = pattern_cell_size;
    var cell_height = pattern_cell_size;
@@ -352,7 +378,7 @@ function create_matrix(data) {
    var label_font_size = cell_height * 0.67;
    var colour_legend_translate_y = cell_height;
    var legend_gap = 50;
-   var min_img_width = 500; // minimum image width
+   var min_img_width = 300; // minimum image width
 
    var img_width = num_patterns * cell_width + margin.left + margin.right + 
                    vertical_gap * 2 + site_totals_bar_width;
@@ -414,15 +440,12 @@ function create_matrix(data) {
       .attr("id", save_button_id)
       .attr("type", "button")
       .attr("class", "btn btn-success btn-sm")
-      .attr("value", "Save " + data.amplicon);
+      .attr("value", "Save " + data.amplicon + " as PNG");
 
    $('#'+save_button_id).click(function () {
-      console.log(save_button_id + ' clicked');
-      console.log(svg_unique_id);
-      console.log(document.getElementById(svg_unique_id))
-      saveSvgAsPng(document.getElementById(svg_unique_id), data.amplicon + ".png", 3);
+      var png_save_scale = parseFloat($('#png_save_scale').val()); 
+      saveSvgAsPng(document.getElementById(svg_unique_id), data.amplicon + ".png", {scale: png_save_scale});
    });
-
 
    var colour_legend_group = patterns_svg.append("g")
        .attr("transform", "translate(0," + colour_legend_translate_y + ")");
@@ -714,6 +737,12 @@ function draw_graphs() {
       .attr("id", "redraw_graphs");
 
    %s
+
+   amplicon_names.map(function(name) { 
+      if (name in amplicons) {
+         create_matrix(amplicons[name]);
+      }
+   });
 }
 
 draw_graphs();

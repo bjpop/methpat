@@ -14,6 +14,7 @@ def web_assets(args):
     css_asset_names = [ 'bootstrap.min.css' ]
     js_asset_names = [ 'd3.v3.min.js'
                      , 'jquery.min.js'
+                     , 'jquery-ui.min.js'
                      , 'bootstrap.min.js'
                      , 'saveSvgAsPng.js'
                      ]
@@ -22,7 +23,9 @@ def web_assets(args):
         css_asset_paths = make_asset_paths(css_asset_names) 
     elif args.webassets == 'online':
         js_asset_paths = [ 'http://d3js.org/d3.v3.min.js'
-                         , 'http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js'
+                         #, 'http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js'
+                         , 'https://code.jquery.com/jquery-1.11.3.min.js'
+                         , 'https://code.jquery.com/ui/1.11.4/jquery-ui.min.js'
                          , 'http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js'
                          , 'http://bjpop.github.io/saveSvgAsPng/saveSvgAsPng.js']
         css_asset_paths = [ 'http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css' ]
@@ -34,7 +37,7 @@ def web_assets(args):
     return '\n'.join(css_asset_links + js_asset_links)
 
 def make_html(args, amplicon_names, json_dict):
-    js_strings = []
+    #js_strings = []
     for amplicon_name in amplicon_names:
         try:
             amplicon_dict = json_dict[amplicon_name]
@@ -43,8 +46,11 @@ def make_html(args, amplicon_names, json_dict):
             continue
         # sort patterns on count in descending order
         amplicon_dict['patterns'].sort(key=lambda x:x['count'], reverse=True)
-        json_str = json.dumps(amplicon_dict)
-        js_strings.append('create_matrix({});'.format(json_str))
-    doc = DOC_TEMPLATE % (web_assets(args), args.title, '\n'.join(js_strings))
+        #json_str = json.dumps(amplicon_dict)
+        #js_strings.append('create_matrix({});'.format(json_str))
+    amplicons_var = "amplicons = " + json.dumps(json_dict) + ";" + "\n"
+    amplicon_names_str = json.dumps(amplicon_names)
+    print(amplicon_names)
+    doc = DOC_TEMPLATE % (web_assets(args), args.title, amplicon_names_str, amplicons_var)
     with open(args.html, 'w') as html_file:
         html_file.write(doc)
