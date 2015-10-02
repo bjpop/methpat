@@ -56,6 +56,7 @@ textarea {
     <ul class="nav nav-tabs">
         <li class="nav active"><a href="#Graphs" data-toggle="tab">Graphs</a></li>
         <li class="nav"><a href="#Settings" data-toggle="tab">Settings</a></li>
+        <li class="nav"><a href="#Order" data-toggle="tab">Order</a></li>
         <li class="nav"><a href="#Info" data-toggle="tab">Info</a></li>
     </ul>
 
@@ -65,6 +66,19 @@ textarea {
         <div class="tab-pane active" id="Graphs">
             <button id="redraw" type="button" class="btn btn-primary">Redraw</button>
             <div id="all_graphs"></div>
+        </div>
+
+        <div class="tab-pane" id="Order">
+            <h3>Amplicon order</h3>
+            <div class="row">
+               <div class="col-md-3">
+                  <p>Drag the amplicon names up or down to reorder their display.</p>
+                  <ul id="amplicon_order" class="list-group">
+                     <!-- List of amplicon names in sortable list -->
+                     %s
+                  </ul>
+               </div>
+            </div>
         </div>
 
         <div class="tab-pane" id="Settings">
@@ -121,6 +135,7 @@ textarea {
                             <label for="png_save_scale">PNG file save scale factor</label>
                             <input id="png_save_scale" class="form-control" type="number" min="1" value="1">
                         </div> 
+
 
                     </form>
                 </div> <!-- col -->
@@ -198,12 +213,15 @@ textarea {
                 
 <script>
 
-var amplicon_names = %s;
+var amplicon_names = [];
 var scaling = 'log';
 
 $('#redraw').click(function () {
    draw_graphs();
 });
+
+$("#amplicon_order").sortable();
+$("#amplicon_order").disableSelection();
 
 /*
    We encode methylated: 1
@@ -443,7 +461,7 @@ function create_matrix(data) {
       .attr("value", "Save " + data.amplicon + " as PNG");
 
    $('#'+save_button_id).click(function () {
-      var png_save_scale = parseFloat($('#png_save_scale').val()); 
+      var png_save_scale = parseInt($('#png_save_scale').val()); 
       saveSvgAsPng(document.getElementById(svg_unique_id), data.amplicon + ".png", {scale: png_save_scale});
    });
 
@@ -738,7 +756,9 @@ function draw_graphs() {
 
    %s
 
-   amplicon_names.map(function(name) { 
+   var ordered_names = $("#amplicon_order").sortable("toArray");
+
+   ordered_names.map(function(name) { 
       if (name in amplicons) {
          create_matrix(amplicons[name]);
       }
