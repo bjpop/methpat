@@ -37,8 +37,8 @@ textarea {
     font-size: 11px;
 }
 
-#redraw { margin-top: 10px; margin-bottom: 10px; }
-#info_alert { margin-top: 10px; }
+.tab-content { margin-top: 10px; }
+
 </style>
 
 <!-- web assets -->
@@ -64,21 +64,7 @@ textarea {
     <div class="tab-content">
 
         <div class="tab-pane active" id="Graphs">
-            <button id="redraw" type="button" class="btn btn-primary">Redraw</button>
             <div id="all_graphs"></div>
-        </div>
-
-        <div class="tab-pane" id="Order">
-            <h3>Amplicon order</h3>
-            <div class="row">
-               <div class="col-md-3">
-                  <p>Drag the amplicon names up or down to reorder their display.</p>
-                  <ul id="amplicon_order" class="list-group">
-                     <!-- List of amplicon names in sortable list -->
-                     %s
-                  </ul>
-               </div>
-            </div>
         </div>
 
         <div class="tab-pane" id="Settings">
@@ -91,12 +77,12 @@ textarea {
                     <form role="form">
                         <div class="form-group">
                             <label for="pattern_cell_size">Cell size (pixels)</label>
-                            <input id="pattern_cell_size" class="form-control" type="number" min="1" max="9999" value="15">
+                            <input id="pattern_cell_size" class="form-control methpat-setting" type="number" min="1" max="9999" value="15">
                         </div>
 
                         <div class="form-group">
                             <label for="scale_pattern_intensity">Scale pattern intensity</label>
-                            <select id="scale_pattern_intensity" class="form-control">
+                            <select id="scale_pattern_intensity" class="form-control methpat-setting">
                                 <option value="false">false</option>
                                 <option value="true">true</option>
                             </select>
@@ -104,7 +90,7 @@ textarea {
 
                         <div class="form-group">
                             <label for="methylation_site_direction">Methylation site direction</label>
-                            <select id="methylation_site_direction" class="form-control">
+                            <select id="methylation_site_direction" class="form-control methpat-setting">
                                 <option value="ascending">ascending</option>
                                 <option value="descending">descending</option>
                             </select>
@@ -112,7 +98,7 @@ textarea {
 
                         <div class="form-group">
                             <label for="pattern_sort_by">Sort methylation patterns by</label>
-                            <select id="pattern_sort_by" class="form-control">
+                            <select id="pattern_sort_by" class="form-control methpat-setting">
                                 <option value="frequency">epiallele frequency</option>
                                 <option value="methylation">degree of methylation</option>
                             </select>
@@ -120,7 +106,7 @@ textarea {
 
                         <div class="form-group">
                             <label for="pattern_sort_direction">Sort direction (left to right)</label>
-                            <select id="pattern_sort_direction" class="form-control">
+                            <select id="pattern_sort_direction" class="form-control methpat-setting">
                                 <option value="descending">descending</option>
                                 <option value="ascending">ascending</option>
                             </select>
@@ -128,9 +114,10 @@ textarea {
 
                         <div class="form-group">
                             <label for="pattern_read_threshold">Pattern read threshold (percent)</label>
-                            <input id="pattern_read_threshold" class="form-control" type="number" min="0" max="100" value="0">
+                            <input id="pattern_read_threshold" class="form-control methpat-setting" type="number" min="0" max="100" value="0">
                         </div> 
 
+                        <!-- Doesn't need methpat-setting class because does not affect visualusation -->
                         <div class="form-group">
                             <label for="png_save_scale">PNG file save scale factor</label>
                             <input id="png_save_scale" class="form-control" type="number" min="1" value="1">
@@ -146,7 +133,7 @@ textarea {
 
                         <div class="form-group">
                             <label for="histogram_scaling">Histogram scaling</label>
-                            <select id="histogram_scaling" class="form-control">
+                            <select id="histogram_scaling" class="form-control methpat-setting">
                                 <option value="linear">linear</option>
                                 <option value="log">log</option>
                             </select>
@@ -154,7 +141,7 @@ textarea {
 
                         <div class="form-group">
                             <label for="histogram_visible">Histogram visible</label>
-                            <select id="histogram_visible" class="form-control">
+                            <select id="histogram_visible" class="form-control methpat-setting">
                                 <option value="true">true</option>
                                 <option value="false">false</option>
                             </select>
@@ -162,12 +149,12 @@ textarea {
 
                         <div class="form-group">
                             <label for="histogram_height">Histogram height (pixels)</label>
-                            <input id="histogram_height" class="form-control" type="number" min="1" max="9999" value="100">
+                            <input id="histogram_height" class="form-control methpat-setting" type="number" min="1" max="9999" value="100">
                         </div>
 
                         <div class="form-group">
                             <label for="histogram_units">Histogram units</label>
-                            <select id="histogram_units" class="form-control">
+                            <select id="histogram_units" class="form-control methpat-setting">
                                 <option value="absolute">absolute</option>
                                 <option value="percent">percent</option>
                             </select>
@@ -180,26 +167,39 @@ textarea {
                     <form role="form">
                         <div class="form-group">
                             <label for="methylated_colour">Methylated site</label>
-                            <input type="color" id="methylated_colour" class="form-control" value="#FFFF00">
+                            <input type="color" id="methylated_colour" class="form-control methpat-setting" value="#FFFF00">
                         </div> 
 
                         <div class="form-group">
                             <label for="unmethylated_colour">Unmethylated site</label>
-                            <input type="color" id="unmethylated_colour" class="form-control" value="#0000FF">
+                            <input type="color" id="unmethylated_colour" class="form-control methpat-setting" value="#0000FF">
                         </div> 
 
                         <div class="form-group">
                             <label for="unknown_colour">Unknown site</label>
-                            <input type="color" id="unknown_colour" class="form-control" value="#AAAAAA">
+                            <input type="color" id="unknown_colour" class="form-control methpat-setting" value="#AAAAAA">
                         </div> 
                         <div class="form-group">
                             <label for="histogram_colour">Histogram</label>
-                            <input type="color" id="histogram_colour" class="form-control" value="#797979">
+                            <input type="color" id="histogram_colour" class="form-control methpat-setting" value="#797979">
                         </div>
                     </form>
                 </div> <!-- col -->
             </div> <!-- row -->
         </div> <!-- pane -->
+
+        <div class="tab-pane" id="Order">
+            <h3>Amplicon order</h3>
+            <div class="row">
+               <div class="col-md-3">
+                  <p>Drag the amplicon names up or down to reorder their display.</p>
+                  <ul id="amplicon-order" class="form-contol list-group methpat-setting">
+                     <!-- List of amplicon names in sortable list -->
+                     %s
+                  </ul>
+               </div>
+            </div>
+        </div>
 
         <div class="tab-pane" id="Info">
             <div id="info_alert" class="alert alert-info" role="alert">
@@ -213,15 +213,27 @@ textarea {
                 
 <script>
 
-var amplicon_names = [];
+var redraw_required = true; // if true redraw graphs when tab is displayed
+                            // initially true to get first draw when page is loaded
 var scaling = 'log';
 
-$('#redraw').click(function () {
-   draw_graphs();
+// Toggle the redraw for graphs if a setting has changed
+$(".methpat-setting").change(function () {redraw_required = true;});
+$("#amplicon-order").on("sortchange", function( event, ui ) {redraw_required = true;} );
+
+// Detect if the Graphs tab is shown, and call draw_graphs()
+$('a[data-toggle="tab"]').on('show.bs.tab', function (e) {
+    var target = $(e.target).attr("href");
+    if (target === "#Graphs")
+    {
+        draw_graphs();
+    }
 });
 
-$("#amplicon_order").sortable();
-$("#amplicon_order").disableSelection();
+// Set up the amplicon ordering to allow user to re-arrange.
+$("#amplicon-order").sortable();
+$("#amplicon-order").disableSelection();
+
 
 /*
    We encode methylated: 1
@@ -748,21 +760,26 @@ function create_matrix(data) {
 
 function draw_graphs() {
 
-   d3.select("#redraw_graphs").remove();
+   if (redraw_required)
+   {
+      d3.select("#redraw_graphs").remove();
 
-   var all_graphs = d3.select("#all_graphs")
-      .append("div")
-      .attr("id", "redraw_graphs");
+      var all_graphs = d3.select("#all_graphs")
+         .append("div")
+         .attr("id", "redraw_graphs");
 
-   %s
+      %s
 
-   var ordered_names = $("#amplicon_order").sortable("toArray");
+      var ordered_names = $("#amplicon-order").sortable("toArray");
 
-   ordered_names.map(function(name) { 
-      if (name in amplicons) {
-         create_matrix(amplicons[name]);
-      }
-   });
+      ordered_names.map(function(name) { 
+         if (name in amplicons) {
+            create_matrix(amplicons[name]);
+         }
+      });
+
+      redraw_required = false;
+   }
 }
 
 draw_graphs();
