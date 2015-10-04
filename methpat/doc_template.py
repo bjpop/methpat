@@ -75,25 +75,17 @@ textarea {
                 <div class="col-md-3">
                     <h4>Methylation patterns</h4>
                     <form role="form">
+
+                        <label for="site-spacing">Methylation site spacing</label>
                         <div class="form-group">
-                            <label for="pattern_cell_size">Cell size (pixels)</label>
-                            <input id="pattern_cell_size" class="form-control methpat-setting" type="number" min="1" max="9999" value="15">
+                            <div class="checkbox form-control methpat-setting">
+                               <label> <input type="checkbox" id="site-spacing"> Show methylation site spacing</label>
+                            </div>
                         </div>
 
                         <div class="form-group">
-                            <label for="scale_pattern_intensity">Scale pattern intensity</label>
-                            <select id="scale_pattern_intensity" class="form-control methpat-setting">
-                                <option value="false">false</option>
-                                <option value="true">true</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="methylation_site_direction">Methylation site direction</label>
-                            <select id="methylation_site_direction" class="form-control methpat-setting">
-                                <option value="ascending">ascending</option>
-                                <option value="descending">descending</option>
-                            </select>
+                            <label for="spacing-factor">Methylation site spacing factor</label>
+                            <input id="spacing-factor" class="form-control methpat-setting" type="number" min="1" value="2">
                         </div>
 
                         <div class="form-group">
@@ -123,6 +115,18 @@ textarea {
                             <input id="png_save_scale" class="form-control" type="number" min="1" value="1">
                         </div> 
 
+                        <div class="form-group">
+                            <label for="pattern_cell_size">Cell size (pixels)</label>
+                            <input id="pattern_cell_size" class="form-control methpat-setting" type="number" min="1" max="9999" value="15">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="scale_pattern_intensity">Scale pattern intensity</label>
+                            <select id="scale_pattern_intensity" class="form-control methpat-setting">
+                                <option value="false">false</option>
+                                <option value="true">true</option>
+                            </select>
+                        </div>
 
                     </form>
                 </div> <!-- col -->
@@ -324,22 +328,17 @@ function create_matrix(data) {
    var unknown_colour = $('#unknown_colour').val()
    var histogram_scaling = $('#histogram_scaling').val();
    var histogram_units = $('#histogram_units').val();
-   var methylation_site_direction = $('#methylation_site_direction').val();
    var pattern_sort_by = $('#pattern_sort_by').val();
    var pattern_sort_direction = $('#pattern_sort_direction').val();
    var pattern_read_threshold = parseFloat($('#pattern_read_threshold').val()); 
+   var show_site_spacing = $('#site-spacing').prop('checked');
+   var site_spacing_factor = parseFloat($('#spacing-factor').val());
    var svg_unique_id = "svg" + unique_id;
 
    var sites = data.sites;
    var site_totals = data.site_totals;
 
-   if (methylation_site_direction == 'ascending') {
-      sites.sort(function(a, b) { return a - b; });
-   }
-   else
-   {
-      sites.sort(function(a, b) { return b - a; });
-   }
+   sites.sort(function(a, b) { return a - b; });
 
    patterns.sort(function(a, b) { return order_pattern(a, b, pattern_sort_by, pattern_sort_direction); });
 
@@ -402,6 +401,10 @@ function create_matrix(data) {
    var pattern_numbers_gap = 5;
    var pattern_numbers_shift = pattern_numbers_height + pattern_numbers_gap;
    var patterns_height = num_sites * cell_height;
+   if (show_site_spacing)
+   {
+       patterns_height *= site_spacing_factor;
+   }
    var horizontal_gap = 10;
    var vertical_gap = 10;
    var axis_gap = 3;
@@ -424,9 +427,21 @@ function create_matrix(data) {
                        margin.top + margin.bottom;
    }
 
-   var cell_y = d3.scale.ordinal()
-      .domain(d3.range(num_sites))
-      .rangeBands([0, patterns_height]);
+   function cell_y(i) {
+       var y_position;
+       if (show_site_spacing)
+       {
+          var pos_x = sites[i];
+          var pos_start = sites[0];
+          var pos_end = sites[num_sites - 1];
+          y_position = (pos_x - pos_start) * ((patterns_height - cell_height) / (pos_end - pos_start));
+       }
+       else
+       {
+           y_position = i * cell_height;
+       }
+       return y_position;
+   }
 
    switch(histogram_units) {
       case 'percent':
@@ -579,7 +594,7 @@ function create_matrix(data) {
        .data(sites)
        .enter().append("text")
        .attr("transform", function(d, i)
-          { return "translate(0," + (((i+1) * cell_height) - (cell_height * 0.165)) + ")"; })
+          { return "translate(0," + ((cell_y(i)) + (cell_height * 0.8)) + ")"; })
        .attr("font-size", label_font_size)
        .attr("font-family", "sans-serif")
        .text(function(d, i) { return sites[i]; });
@@ -599,7 +614,7 @@ function create_matrix(data) {
        .attr("stroke-width", 0.5)
        .attr("stroke", "black")
        .attr("fill", methylated_colour)
-       .attr("transform", function(d, i) { return "translate(0," + i * cell_height + ")"; });
+       .attr("transform", function(d, i) { return "translate(0," + cell_y(i) + ")"; });
 
    site_totals_bar_group.selectAll(".site_total_unmethylated")
        .data(site_totals)
@@ -615,7 +630,7 @@ function create_matrix(data) {
        .attr("transform", function(d, i) { 
            // translate across by the size of the methylated rectangle
            var translate_x = d.site_methylated * site_totals_bar_width;
-           return "translate(" + translate_x + "," + i * cell_height + ")"; });
+           return "translate(" + translate_x + "," + cell_y(i) + ")"; });
 
    site_totals_bar_group.selectAll(".site_total_unknown")
        .data(site_totals)
@@ -632,7 +647,7 @@ function create_matrix(data) {
            // translate across by the size of the unmethylated rectangle
            // plus the size of the methylated rectangle 
            var translate_x = (d.site_methylated + d.site_unmethylated) * site_totals_bar_width;
-           return "translate(" + translate_x + "," + i * cell_height + ")"; });
+           return "translate(" + translate_x + "," + cell_y(i) + ")"; });
 
    var patterns_group_columns = patterns_group.append("g")
       .attr("class", "patterns_columns")
@@ -654,12 +669,7 @@ function create_matrix(data) {
                var cell_val = { meth_state : d.methylation[i], count : d.count }
                values.push(cell_val);
            }
-           if (methylation_site_direction == 'ascending') {
-              return values;
-           }
-           else {
-              return values.reverse();
-           }
+           return values;
        })
        .enter().append("rect")
        .attr("class", "cell")
