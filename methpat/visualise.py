@@ -3,6 +3,7 @@ import logging
 from pkg_resources import resource_filename
 import os
 from doc_template import DOC_TEMPLATE
+from version import methpat_version
 
 def make_asset_paths(asset_names):
     return [resource_filename('methpat', os.path.join('data', asset))
@@ -52,7 +53,7 @@ def make_html(args, amplicon_names, json_dict):
     amplicons_var = "amplicons = " + json.dumps(json_dict) + ";" + "\n"
     #amplicon_names_str = json.dumps(used_amplicon_names)
     amplicon_names_list = make_amplicon_names_list(used_amplicon_names)
-    doc = DOC_TEMPLATE % (web_assets(args), args.title, amplicon_names_list, amplicons_var)
+    doc = DOC_TEMPLATE % (web_assets(args), args.title, amplicon_names_list, methpat_version, amplicons_var)
     with open(args.html, 'w') as html_file:
         html_file.write(doc)
 

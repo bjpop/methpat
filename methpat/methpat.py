@@ -6,6 +6,7 @@ import sys
 from argparse import ArgumentParser
 import logging
 from visualise import make_html
+from version import methpat_version
 
 DEFAULT_WEBASSETS = 'package'
 DEFAULT_TITLE = 'Methylation Patterns'
@@ -16,6 +17,7 @@ DEFAULT_HTML_FILENAME = 'methpat.html'
 def parseArgs():
     parser = ArgumentParser(
         description = 'Summarise methylation patterns in bismark output, and generate visualisation.')
+    parser.add_argument('--version', action='version', version='%(prog)s ' + methpat_version)
     parser.add_argument(
         'bismark_file', metavar='BISMARK_FILE', type=str,
         help='input bismark file')

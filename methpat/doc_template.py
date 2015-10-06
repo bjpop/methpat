@@ -208,7 +208,7 @@ textarea {
         <div class="tab-pane" id="Info">
             <div id="info_alert" class="alert alert-info" role="alert">
                 Methylation pattern visualisation created with
-                <a href="http://bjpop.github.io/methpat/">methpat</a>.
+                <a href="http://bjpop.github.io/methpat/">methpat</a> version %s.
             </div>
         </div>
 

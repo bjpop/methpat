@@ -28,27 +28,31 @@ This will automatically download and install the dependencies of methpat.
 Usage
 -----
 
-    usage: methpat [-h] [--dump_reads FILE] [--count_thresh THRESH] --amplicons
-                   AMPLICONS_FILE --logfile FILENAME --html FILENAME
-                   BISMARK_FILE [--webassets {package,local,online}]
-    
-    Count methylation patterns in bismark output
-    
-    positional arguments:
-      BISMARK_FILE          input bismark file
-    
-    optional arguments:
-      -h, --help            show this help message and exit
-      --dump_reads FILE     dump the read methylation information to FILE
-      --count_thresh THRESH
-                            Only display methylation patterns with at least THRESH
-                            number of matching reads
-      --amplicons AMPLICONS_FILE
-                            Only display methylation patterns with at least THRESH
-                            number of matching reads
-      --logfile FILENAME    log progress in FILENAME
-      --html FILENAME       save visualisation in html FILENAME
-      --webassets {package, local, online}
-                            location of required D3.js libraries. package = libraries on localhost,
-                            local = libraries in local directory of results, online = URL of libraries
-    
+```
+usage: methpat [-h] [--version] [--count_thresh THRESH] --amplicons
+               AMPLICONS_FILE [--logfile FILENAME] [--html FILENAME]
+               [--webassets {package,local,online}] [--title TITLE]
+               BISMARK_FILE
+
+Summarise methylation patterns in bismark output, and generate visualisation.
+
+positional arguments:
+  BISMARK_FILE          input bismark file
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --version             show program's version number and exit
+  --count_thresh THRESH
+                        only display methylation patterns with at least THRESH
+                        number of matching reads, defaults to "0"
+  --amplicons AMPLICONS_FILE
+                        file containing amplicon information in TSV format
+  --logfile FILENAME    log progress in FILENAME, defaults to "methpat.log"
+  --html FILENAME       save visualisation in html FILENAME defaults to
+                        "methpat.html"
+  --webassets {package,local,online}
+                        location of assets used by output visualisation web
+                        page, defaults to "package"
+  --title TITLE         title of the output visualisation page, defaults to
+                        "Methylation Patterns"
+```
