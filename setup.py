@@ -4,7 +4,7 @@ from distutils.core import setup
 
 setup(
     name='methpat',
-    version='2.0.0',
+    version='2.1.0',
     author='Bernie Pope',
     author_email='bjpope@unimelb.edu.au',
     packages=['methpat'],
