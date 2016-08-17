@@ -13,6 +13,7 @@ DEFAULT_TITLE = 'Methylation Patterns'
 DEFAULT_COUNT_THRESH = 0
 DEFAULT_LOG_FILENAME = 'methpat.log'
 DEFAULT_HTML_FILENAME = 'methpat.html'
+DEFAULT_FILTER_PARTIAL = False
 
 def parseArgs():
     parser = ArgumentParser(
@@ -37,6 +38,9 @@ def parseArgs():
     parser.add_argument('--title', metavar='TITLE', type=str,
         default=DEFAULT_TITLE,
         help='title of the output visualisation page, defaults to "{}"'.format(DEFAULT_TITLE))
+    parser.add_argument('--filterpartial', action='store_true',
+        default=DEFAULT_FILTER_PARTIAL,
+        help='Ignore reads which contain (at least one) unknown methylation status')
     return parser.parse_args()
 
 def encode_methyl(char):
@@ -229,9 +233,11 @@ def main():
             for cpg_sites, count in methyl_state_counts[amplicon].items():
                 if count >= args.count_thresh:
                     binary = pretty_state(unique_sites, cpg_sites)
-                    binary_raw = str(cpg_sites)
-                    chr = amplicon_chromosomes[amplicon]
-                    result.append((amplicon, chr, start_pos, end_pos, binary, count, binary_raw))
+                    # possibly ignore partial reads (those which contain at least one unknown methylation site)
+                    if not (args.filterpartial and '-' in binary):
+                        binary_raw = str(cpg_sites)
+                        chr = amplicon_chromosomes[amplicon]
+                        result.append((amplicon, chr, start_pos, end_pos, binary, count, binary_raw))
 
     print('\t'.join(["<amplicon ID>", "<chr>", "<Base position start/CpG start>",
           "<Base position end/CpG end>", "<Methylation pattern>", "<count>", "<raw cpg sites>"]))
