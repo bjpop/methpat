@@ -7,6 +7,7 @@ from argparse import ArgumentParser
 import logging
 from visualise import make_html
 from version import methpat_version
+from collections import defaultdict
 
 DEFAULT_WEBASSETS = 'package'
 DEFAULT_TITLE = 'Methylation Patterns'
@@ -41,6 +42,9 @@ def parseArgs():
     parser.add_argument('--filterpartial', action='store_true',
         default=DEFAULT_FILTER_PARTIAL,
         help='Ignore reads which contain (at least one) unknown methylation status')
+    parser.add_argument(
+        '--min_cpg_percent', metavar='PERCENT', type=float, required=False, 
+        help='only consider CPG sites which occur at least PERCENT of reads for an amplicon')
     return parser.parse_args()
 
 def encode_methyl(char):
@@ -199,7 +203,6 @@ def main():
            for amplicon in amplicons[read.chr]:
                intersection = tuple(intesect_cpg_sites_amplicon(cpg_sites, amplicon))
                if intersection:
-                   #methyl_states.append(amplicon.name, tuple(cpg_sites))
                    if amplicon.name in methyl_state_counts:
                        this_amplicon_info = methyl_state_counts[amplicon.name]
 	               if intersection in this_amplicon_info:
@@ -221,23 +224,34 @@ def main():
     result = []
     for amplicon in methyl_state_counts:
         # compute the set of unique CPG sites for this amplicon
-        unique_sites = set()
-        for cpg_sites in methyl_state_counts[amplicon].keys():
-            unique_sites.update([site.pos for site in cpg_sites])
-        if len(unique_sites) > 0:
-            # sort the unique CPG sites into ascending order of position
-            unique_sites = sorted(unique_sites)
-            amplicon_unique_sites[amplicon] = unique_sites
-            start_pos = unique_sites[0]
-            end_pos = unique_sites[-1]
-            for cpg_sites, count in methyl_state_counts[amplicon].items():
-                if count >= args.count_thresh:
-                    binary = pretty_state(unique_sites, cpg_sites)
-                    # possibly ignore partial reads (those which contain at least one unknown methylation site)
-                    if not (args.filterpartial and '-' in binary):
-                        binary_raw = str(cpg_sites)
-                        chr = amplicon_chromosomes[amplicon]
-                        result.append((amplicon, chr, start_pos, end_pos, binary, count, binary_raw))
+        total_amplicon_patterns = 0
+        cpg_site_histogram = defaultdict(int)
+        for cpg_sites, count in methyl_state_counts[amplicon].items():
+            total_amplicon_patterns += count
+            for site in cpg_sites:
+                cpg_site_histogram[site.pos] += count 
+        if total_amplicon_patterns > 0:
+            unique_sites = set()
+            for pos, count in cpg_site_histogram.items():
+                if not(args.min_cpg_percent) or \
+                   # If args.min_cpg_percent is set, only consider CPG sites which appear in
+                   # at least args.min_cpg_percent percentage of reads for this amplicon
+                   ((count / float(total_amplicon_patterns)) * 100.0 >= args.min_cpg_percent):
+                    unique_sites.add(pos)
+            if len(unique_sites) > 0:
+                # sort the unique CPG sites into ascending order of position
+                unique_sites = sorted(unique_sites)
+                amplicon_unique_sites[amplicon] = unique_sites
+                start_pos = unique_sites[0]
+                end_pos = unique_sites[-1]
+                for cpg_sites, count in methyl_state_counts[amplicon].items():
+                    if count >= args.count_thresh:
+                        binary = pretty_state(unique_sites, cpg_sites)
+                        # possibly ignore partial reads (those which contain at least one unknown methylation site)
+                        if not (args.filterpartial and '-' in binary):
+                            binary_raw = str(cpg_sites)
+                            chr = amplicon_chromosomes[amplicon]
+                            result.append((amplicon, chr, start_pos, end_pos, binary, count, binary_raw))
 
     print('\t'.join(["<amplicon ID>", "<chr>", "<Base position start/CpG start>",
           "<Base position end/CpG end>", "<Methylation pattern>", "<count>", "<raw cpg sites>"]))
