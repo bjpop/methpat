@@ -233,9 +233,9 @@ def main():
         if total_amplicon_patterns > 0:
             unique_sites = set()
             for pos, count in cpg_site_histogram.items():
+                # If args.min_cpg_percent is set, only consider CPG sites which appear in
+                # at least args.min_cpg_percent percentage of reads for this amplicon
                 if not(args.min_cpg_percent) or \
-                   # If args.min_cpg_percent is set, only consider CPG sites which appear in
-                   # at least args.min_cpg_percent percentage of reads for this amplicon
                    ((count / float(total_amplicon_patterns)) * 100.0 >= args.min_cpg_percent):
                     unique_sites.add(pos)
             if len(unique_sites) > 0:
