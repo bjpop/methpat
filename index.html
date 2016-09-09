@@ -32,12 +32,12 @@
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
         <h3>
-<a id="introduction" class="anchor" href="#introduction" aria-hidden="true"><span class="octicon octicon-link"></span></a>Introduction</h3>
+<a id="introduction" class="anchor" href="#introduction" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Introduction</h3>
 
 <p>This program summarises the resultant DNA methylation pattern data from the output of <a href="http://www.bioinformatics.babraham.ac.uk/projects/bismark/">Bismark</a> bismark_methylation_extractor. Information of the DNA methylation positions for each amplicon, DNA methylation patterns observed within each amplicon and their abundance counts are summarised into a tab delimited text file amenable for further downstream statistical analysis and visualization.</p>
 
 <h2>
-<a id="requirements" class="anchor" href="#requirements" aria-hidden="true"><span class="octicon octicon-link"></span></a>Requirements</h2>
+<a id="requirements" class="anchor" href="#requirements" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Requirements</h2>
 
 <ul>
 <li>Whole genome bisulfite short read sequencing data (WGBS), or Reduced Representation Bisulfite Sequencing (RRBS), or Bisulfite Amplicon Sequencing.</li>
@@ -48,7 +48,7 @@
 </ul>
 
 <h2>
-<a id="installation" class="anchor" href="#installation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Installation</h2>
+<a id="installation" class="anchor" href="#installation" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Installation</h2>
 
 <p>Methpat currently requires version 2.7 of Python.</p>
 
@@ -60,11 +60,12 @@
 <p>This will automatically download and install the dependencies of methpat.</p>
 
 <h2>
-<a id="usage" class="anchor" href="#usage" aria-hidden="true"><span class="octicon octicon-link"></span></a>Usage</h2>
+<a id="usage" class="anchor" href="#usage" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Usage</h2>
 
 <pre><code>usage: methpat [-h] [--version] [--count_thresh THRESH] --amplicons
                AMPLICONS_FILE [--logfile FILENAME] [--html FILENAME]
                [--webassets {package,local,online}] [--title TITLE]
+               [--filterpartial] [--min_cpg_percent PERCENT]
                BISMARK_FILE
 
 Summarise methylation patterns in bismark output, and generate visualisation.
@@ -88,10 +89,16 @@ optional arguments:
                         page, defaults to "package"
   --title TITLE         title of the output visualisation page, defaults to
                         "Methylation Patterns"
+  --filterpartial       Ignore reads which contain (at least one) unknown
+                        methylation status
+  --min_cpg_percent PERCENT
+                        only consider CPG sites which occur at least PERCENT
+                        of reads for an amplicon
+
 </code></pre>
 
 <h2>
-<a id="explanation-of-command-line-arguments" class="anchor" href="#explanation-of-command-line-arguments" aria-hidden="true"><span class="octicon octicon-link"></span></a>Explanation of command line arguments</h2>
+<a id="explanation-of-command-line-arguments" class="anchor" href="#explanation-of-command-line-arguments" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Explanation of command line arguments</h2>
 
 <ul>
 <li>
@@ -118,10 +125,14 @@ optional arguments:
 </li>
 <li>
 <code>--title TITLE</code>: Title of the output visualisation page, defaults to "Methylation Patterns".</li>
+<li>
+<code>--filterpartial</code>: Remove from consideration any reads which contain at least one CpG site with unknown methylation state.</li>
+<li>
+<code>--min_cpg_percent PERCENT</code>: Count the frequency of occurrences of each CpG site in a given amplicon and only include sites which occur in at least PERCENT of the total. This can be helpful for ignoring low frequency errors in the data which would otherwise show up as putative CpG sites, and may lead to many occurrences of unknown sites in other reads.</li>
 </ul>
 
 <h2>
-<a id="input-amplicons-file-format" class="anchor" href="#input-amplicons-file-format" aria-hidden="true"><span class="octicon octicon-link"></span></a>Input amplicons file format</h2>
+<a id="input-amplicons-file-format" class="anchor" href="#input-amplicons-file-format" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Input amplicons file format</h2>
 
 <p>The amplicons (or regions of interest) are defined by this tab-delimited text file. The order
 of regions listed in this file will correspond to the order of display in the html file generated.
@@ -140,7 +151,7 @@ The file requires 7 columns which define:</p>
 <p>See the file <a href="https://raw.githubusercontent.com/bjpop/methpat/master/examples/example_amplicons.txt">examples/example_amplicons.txt</a> for an example input amplicons file, which is used in the worked example below.</p>
 
 <h2>
-<a id="worked-example" class="anchor" href="#worked-example" aria-hidden="true"><span class="octicon octicon-link"></span></a>Worked example</h2>
+<a id="worked-example" class="anchor" href="#worked-example" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Worked example</h2>
 
 <p>Run Bismark as per instructions to prepare the reference genome as outlined in the <a href="http://www.bioinformatics.babraham.ac.uk/projects/bismark/Bismark_User_Guide.pdf">bismark manual</a>.</p>
 
@@ -178,7 +189,7 @@ are then processed with methpat.</p>
 <p>See the file <a href="pages/methpat.html">examples/methpat.html</a> which contains the visualisation of the above worked example.</p>
 
 <h2>
-<a id="format-of-the-methylation-pattern-counts-output-text-file" class="anchor" href="#format-of-the-methylation-pattern-counts-output-text-file" aria-hidden="true"><span class="octicon octicon-link"></span></a>Format of the methylation pattern counts output text file</h2>
+<a id="format-of-the-methylation-pattern-counts-output-text-file" class="anchor" href="#format-of-the-methylation-pattern-counts-output-text-file" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Format of the methylation pattern counts output text file</h2>
 
 <p>One of the main outputs of methpat is a tab-delimited text file which summarises the counts for each methylation pattern over all amplicons from the input. In the example above this output file is called <code>example_methpat.tsv</code>. The file has seven columns containing the following information:</p>
 
@@ -202,7 +213,7 @@ are then processed with methpat.</p>
 <p>See the file <a href="https://raw.githubusercontent.com/bjpop/methpat/master/examples/example_methpat.tsv">examples/methpat.tsv</a> which contains the methylation counts from the above worked example.</p>
 
 <h2>
-<a id="visualisation" class="anchor" href="#visualisation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Visualisation</h2>
+<a id="visualisation" class="anchor" href="#visualisation" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Visualisation</h2>
 
 <p>Methpat outputs a HTML visualisation of the methylation patterns for each amplicon in the input. By default the file is called <code>methpat.html</code> but you can override this with another name using the <code>--html</code> command line argument.</p>
 
