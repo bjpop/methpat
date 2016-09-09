@@ -32,6 +32,7 @@ Usage
 usage: methpat [-h] [--version] [--count_thresh THRESH] --amplicons
                AMPLICONS_FILE [--logfile FILENAME] [--html FILENAME]
                [--webassets {package,local,online}] [--title TITLE]
+               [--filterpartial] [--min_cpg_percent PERCENT]
                BISMARK_FILE
 
 Summarise methylation patterns in bismark output, and generate visualisation.
@@ -55,4 +56,10 @@ optional arguments:
                         page, defaults to "package"
   --title TITLE         title of the output visualisation page, defaults to
                         "Methylation Patterns"
+  --filterpartial       Ignore reads which contain (at least one) unknown
+                        methylation status
+  --min_cpg_percent PERCENT
+                        only consider CPG sites which occur at least PERCENT
+                        of reads for an amplicon
+
 ```
